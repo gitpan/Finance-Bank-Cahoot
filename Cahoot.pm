@@ -1,7 +1,7 @@
 package Finance::Bank::Cahoot;
 use strict;
 use Carp;
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 our $agent = WWW::Mechanize->new(cookie_jar => {});
 
 use WWW::Mechanize;

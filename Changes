@@ -1,5 +1,6 @@
 Revision history for Perl extension Finance::Bank::Cahoot.
 
-1.00  Fri Sep 19 09:13:00 2003
-	- original version;
+0.01  Fri Sep 19 09:48:53 2003
+	- original version; created by h2xs 1.21 with options
+		-AX Finance::Bank::Cahoot
 

@@ -1,0 +1,90 @@
+NAME
+
+Finance::Bank::Cahoot - Check your Cahoot bank accounts from Perl
+
+SYNOPSIS
+
+  use Finance::Bank::Cahoot;
+  my @accounts = Finance::Bank::Cahoot->check_balance(
+      username => "xxxxxxxxxx",
+      password   => "xxxxxx",
+      memorable_address   => "xxxxxx",
+      maiden_name   => "xxxxxx",
+      memorable_date   => "xxxxxx"
+  );
+
+  foreach (@accounts) {
+      printf "%25s : %18s : GBP %8.2f (%8.2f)\n",
+        $_->{name}, $_->{account}, $_->{current_balance}, $_->{available_balance};
+	  print "recent transactions: \n";
+	  my @transactions = $_->statement;
+	  foreach (@transactions) {
+			printf "%25s : %14s : GBP -%8.2f +%8.2f\n",
+			  $_->{name}, $_->{date}, $_->{amount_debit}, $_->{amount_credit};
+	  }
+  }
+
+DESCRIPTION
+
+This module provides a rudimentary interface to the Cahoot online
+banking system at http://www.cahoot.com. 
+
+DEPENDENCIES
+
+You will need either Crypt::SSLeay or IO::Socket::SSL installed 
+for HTTPS support to work with LWP.  This module also depends on 
+WWW::Mechanize for screen-scraping.
+
+CLASS METHODS
+
+    check_balance( username => $u, password => $p, memorable_address => $a, maiden_name => $m, memorable_date => $d)
+
+Return an array of account objects, one for each of your bank accounts.
+
+ACCOUNT OBJECT METHODS
+
+    $ac->name
+    $ac->account
+    $ac->account_type
+    $ac->available_balance
+    $ac->current_balance
+ 
+Return the account name, account number, account type and available/current balances
+as signed floating point values.
+
+    $ac->statement
+
+Return an array of hashes for the most recent transactions. (payee name, date, debit amount and credit amount)
+
+TRANSACTION HASH KEYS
+
+    $tr->name
+    $tr->date
+    $tr->amount_debit
+    $tr->amount_credit
+
+WARNING
+
+This warning is from Simon Cozens' Finance::Bank::LloydsTSB, and seems
+just as apt here.
+
+This is code for online banking, and that means your money, and
+that means BE CAREFUL. You are encouraged, nay, expected, to audit
+the source of this module yourself to reassure yourself that I am not
+doing anything untoward with your banking data. This software is useful
+to me, but is provided under NO GUARANTEE, explicit or implied.
+
+NOTES
+
+This has only been tested on my Cahoot accounts. This only represents a subset of the 
+accounts available. They should all follow a consistent layout for the statement method
+but this is not guaranteed to be the case.
+
+THANKS
+
+Chris Ball for Finance::Bank::HSBC, Simon Cozens for Finance::Bank::LloydsTSB,
+Andy Lester (and Skud, by continuation) for WWW::Mechanize.
+
+AUTHOR
+
+Andy Kelk mopoke@cpan.org
