@@ -1,0 +1,69 @@
+
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+	 <title>main navigation</title>
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
+	<link rel="stylesheet" type="text/css" href="/Aquarius/web/en/cahoot.css" title="cahoot">
+	<SCRIPT LANGUAGE="JavaScript" SRC="/Aquarius/web/en/cahoot.js"></SCRIPT>
+	<link rel="javascript" type="text/js" href="/Aquarius/web/en/cahoot.js" title="cahootjs">
+<script language="JavaScript" type="text/javascript">
+var globnavLoaded = "";
+
+function pageLoaded() {
+	window.globnavLoaded= "yes";
+}
+        var path = "/Aquarius/web/en/core_banking/help/";
+        var theurl;
+
+// new function for wr2466, opens new pop up for new FAQ page
+function openFAQwindow(theURL,winName) { 
+	  remote = window.open(theURL, winName, 'width=820,height=650,top=10,left=10,scrollbars=yes,menubar=no,toolbar=no,resizable=yes');
+	  if (remote != null) {
+	  remote.focus();
+	  }
+	}
+
+</script>
+<style media="screen" type="text/css">
+#accountlistdropdown select {
+	font-size : 0.8em;
+}
+</style>
+</head>
+
+
+
+<body onload="pageLoaded();">
+<form method="post" action="/servlet/com.aquarius.accounts.servlet.AccountStatusFrameServlet" target="account_frame">
+<!--~---------------------- TABLE1 ----------------------~-->
+	<table width="780" border="0" cellpadding="0" cellspacing="0" id="globalNav" style="background-color: #431C60">
+		<tr>
+			<td width="14"><img src="/Aquarius/web/images/misc/spacer.gif" alt="" width="14"></td>
+			
+      <td valign="top" width="559"><a href="/Aquarius/web/en/core_banking/personal_homepage/frameset_personal_homepage.html" target="account_frame"><img SRC="/Aquarius/web/images/logos/cahoot_logo_small.gif" WIDTH=138 HEIGHT=32 alt="cahoot" vspace=5 border=0 align="absmiddle"></a><span class="mask"><a href="/Aquarius/web/en/accessibility/frameset_accessibility.html" target="account_frame" accesskey="0">&nbsp;accessibility</a></span></td>
+			<td width="193" align="right">&nbsp;</td>
+			<td width="14"><img src="/Aquarius/web/images/misc/spacer.gif" alt="" width="14" height="1"></td>
+		</tr>
+		<tr>
+			<td width="14"><img src="/Aquarius/web/images/misc/spacer.gif" alt="" width="14"></td>
+			<td colspan="3"><a href="/Aquarius/web/en/core_banking/log_out/frameset_log_out.html" target="account_frame" class="topnav">log out</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="/Aquarius/web/en/core_banking/personal_homepage/frameset_personal_homepage.html" target="account_frame" class="topnav" accesskey="1">personal home<span class="mask">&nbsp;</span>page</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="/Aquarius/web/en/core_banking/change_personal_details/frameset_change_personal_details.html" target="account_frame" class="topnav">change my details</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="/Aquarius/web/en/core_banking/contact_us/frameset_contact_us.html" target="account_frame" class="topnav" accesskey="9">contact us</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="/Aquarius/web/en/core_banking/activity_summary/frameset_activity_summary.html" target="account_frame" class="topnav">activity summary</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://www.cahoot.com/any_questions/iBank_faq.html" target="account_frame" onClick="openFAQwindow('https://www.cahoot.com/any_questions/iBank_faq.html', 'top');return false;" title="Frequently Asked Questions (opens new window)"  class="topnav" accesskey="6">FAQs</a><a href="/Aquarius/web/en/core_banking/terms_and_conditions/frameset_terms_and_conditions.html" target="account_frame" class="mask" accesskey="8">terms &amp; conditions</a><a href="/Aquarius/web/en/core_banking/legal_notices/frameset_legal_notices.html" target="account_frame" class="mask" accesskey="7">complaints</a></td>
+		</tr>
+		<tr>
+			<td colspan="4"><img src="/Aquarius/web/images/misc/spacer.gif" alt="" width="1" height="2"></td>
+		</tr>
+	</table>
+<!-------------------------------------------------- BRAND IMAGE --------------------------------------------->
+	<table width="780" cellspacing="0" cellpadding="0" border="0" id="branding">
+		<tr>
+			<td><img src="/Aquarius/web/images/navbar_photos/brand_image_space_hoper.jpg" border="0" width="215" height="36" alt="" id="brandImage" name="brandImage"></td>
+
+			<td width="14">&nbsp;</td>
+		</tr>
+	</table>
+<!------------------------------------------------- END BRAND IMAGE ------------------------------------------>
+<!--~-------------------- END TABLE1 --------------------~-->
+</form>
+</body>
+</html>

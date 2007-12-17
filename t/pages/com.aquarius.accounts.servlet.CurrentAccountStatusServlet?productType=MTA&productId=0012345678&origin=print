@@ -1,0 +1,232 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>Account Status</title>
+  <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
+  <link rel="stylesheet" type="text/css" href="/Aquarius/web/en/cahoot.css" title="cahoot">
+<SCRIPT LANGUAGE="JavaScript" SRC="/Aquarius/web/en/cahoot.js"></SCRIPT>
+<script language="JavaScript"><!--
+function MM_openBrWindow(theURL,winName,features) { //v2.0
+  window.open(theURL,winName,features);
+}
+
+function makeRemote() {
+	remote = window.open('/Aquarius/web/en/core_banking/current_account/account_status/help/frameset_help_bank_current_status.html', 'help', 'height=329,width=509,scrollbars=yes');
+	if (remote != null) {
+	  	remote.focus();
+	  	}
+    if (remote.opener == null) remote.opener = window;
+	remote.opener.name = "opener";
+}
+//--></script>
+
+</head>
+
+
+
+
+<body> 
+ <a name="top"></a>
+    
+<table width="595" cellpadding="0" cellspacing="0" border="0" id="content">
+  <tr> 
+    <td><img src="/Aquarius/web/images/misc/spacer.gif" alt="" width="20" height="1" border="0"></td>
+    <td><img src="/Aquarius/web/images/misc/spacer.gif" alt="" width="250" height="1" border="0"></td>
+    <td><img src="/Aquarius/web/images/misc/spacer.gif" alt="" width="150" height="1" border="0"></td>
+    <td><img src="/Aquarius/web/images/misc/spacer.gif" alt="" width="150" height="1" border="0"></td>
+    <td><img src="/Aquarius/web/images/misc/spacer.gif" alt="" width="25" height="1" border="0"></td>
+  </tr>
+  <tr> 
+    <td colspan="5"> </td>
+  </tr>
+  <tr> 
+    <td colspan="3"><img src="/Aquarius/web/images/misc/spacer.gif" alt="" width="1" height="40"> 
+    <td align="right">&nbsp; </td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+    <td colspan="3"> 
+      <hr size="1" width="100%" color="Black">
+    </td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr> 
+    <td><img src="/Aquarius/web/images/misc/spacer.gif" alt="" width="1" height="30"></td>
+    <td><img src="/Aquarius/web/images/logos/cahoot_on_white.gif" width="137" height="32" alt="cahoot"></td>
+    <td colspan="2" align="right"> 
+        <script>
+	        printclosewindow();
+        </script>
+        <noscript>
+		    <span class="nonjsMessage">close this window to continue</span>
+		</noscript>
+    </td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+    <td colspan="3"> 
+      <hr size="1" width="100%" color="Black">
+    </td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr> 
+    <td><img src="/Aquarius/web/images/misc/spacer.gif" alt="" width="1" height="10"></td>
+    <td>&nbsp;</td>
+    <td colspan="2" align="right">&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+    <td colspan="3"> 
+      <hr size="1" width="100%" color="Black">
+    </td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+    <td><font class="boldpurple">account</font> <font class="boldblack">current account 12345678</font></td>
+    <td colspan="2"><font class="boldpurple">current balance</font> <font class="boldblack">£847.83</font></td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+    <td colspan="3"> 
+      <hr size="1" width="100%" color="Black">
+    </td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+    <td colspan="3">&nbsp; </td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+    <td colspan="3"><h1>account status</h1></td>
+    <td align="right">&nbsp; </td>
+  </tr>
+  <tr> 
+    <td><img src="/Aquarius/web/images/misc/spacer.gif" alt="" width="1" height="20"></td>
+    <td>&nbsp;</td>
+    <td valign="top" colspan="2" align="right">&nbsp; </td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr> 
+    <td colspan="5"><img src="/Aquarius/web/images/misc/spacer.gif" alt="" width="1" height="5"></td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+    <td colspan="3"> 
+      <table width="540" border="0" cellpadding="3" cellspacing="0" >
+        <tr> 
+          <td class="grey" colspan="2"><font class="boldpurple">recent transactions</font></td>
+          <td class="grey" colspan="2" align="right"><font class="boldpurple">available 
+            balance</font> £3536.83</td>
+        </tr>
+	  </table>
+	  <table width="540" border="0" cellpadding="3" cellspacing="0" class="dataTable">
+        <tr> 
+          <th class="darkblue" width="135" scope="col">Date</th>
+          <th class="darkblue" width="165" scope="col">Type</th>
+          <th class="darkblue" width="125" align="right" scope="col">Withdrawn</th>
+          <th class="darkblue" width="115" align="right" scope="col">Paid In</th>
+        </tr>
+        
+       
+         
+        <tr> 
+          <td scope="row">15 Dec 2007</td>
+          <td>JON DOE</td>
+          <td align="right">&nbsp;</td>
+          <td align="right">£15.00&nbsp;</td>
+        </tr>
+         
+        <tr> 
+          <td scope="row">15 Dec 2007</td>
+          <td>MARK SMITH</td>
+          <td align="right">&nbsp;</td>
+          <td align="right">£14.45&nbsp;</td>
+        </tr>
+         
+        <tr> 
+          <td scope="row">11 Dec 2007</td>
+          <td>ACME PHONE CORP BILLING</td>
+          <td align="right">£18.72&nbsp;</td>
+          <td align="right">&nbsp;</td>
+        </tr>
+         
+        <tr> 
+          <td scope="row">10 Dec 2007</td>
+          <td>MAIN STREET ATM</td>
+          <td align="right">£50.00&nbsp;</td>
+          <td align="right">&nbsp;</td>
+        </tr>
+         
+        <tr> 
+          <td scope="row">08 Dec 2007</td>
+          <td>LEC CO ELECTRICITY</td>
+          <td align="right">£34.12&nbsp;</td>
+          <td align="right">&nbsp;</td>
+        </tr>
+         
+        <tr> 
+          <td scope="row">08 Dec 2007</td>
+          <td>GASCO LIMITED</td>
+          <td align="right">£37.11&nbsp;</td>
+          <td align="right">&nbsp;</td>
+        </tr>
+         
+        <tr> 
+          <td scope="row">01 Dec 2007</td>
+          <td>TAX ON CR INTEREST</td>
+          <td align="right">£2.25&nbsp;</td>
+          <td align="right">&nbsp;</td>
+        </tr>
+         
+        <tr> 
+          <td scope="row">01 Dec 2007</td>
+          <td>INTEREST PAID</td>
+          <td align="right">&nbsp;</td>
+          <td align="right">£11.23&nbsp;</td>
+        </tr>
+         
+        <tr> 
+          <td scope="row">23 Nov 2007</td>
+          <td>GIVESALOT CHARITY CREDIT CARD</td>
+          <td align="right">£938.65&nbsp;</td>
+          <td align="right">&nbsp;</td>
+        </tr>
+         
+        <tr> 
+          <td scope="row">22 Nov 2007</td>
+          <td>BIGGINS IT CONSULTANTS</td>
+          <td align="right">£1827.26&nbsp;</td>
+          <td align="right">&nbsp;</td>
+        </tr>
+         
+        <tr> 
+          <td scope="row">
+         	  
+      
+      </table>
+    </td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr> 
+    <td><img src="/Aquarius/web/images/misc/spacer.gif" alt="" width="1" height="30"></td>
+    <td colspan="3">&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+    <td colspan="3"> 
+      <hr size="1" width="100%" color="Black">
+    </td>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+</body>
+</html>

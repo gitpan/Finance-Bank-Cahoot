@@ -1,0 +1,37 @@
+#! /usr/bin/perl
+
+use strict;
+use warnings;
+use Term::ReadLine;
+
+use Finance::Bank::Cahoot;
+use Finance::Bank::Cahoot::CredentialsProvider::Callback;
+
+my $term = new Term::ReadLine;
+my %callbacks = (account => sub { return '12345678' },
+		 password => sub {
+		   return $term->readline("Enter character $_[0] of password: ")
+		 },
+		 place => sub {
+		   return $term->readline('Enter memorable place: ')
+		 },
+		 date => sub {
+		   return $term->readline('Enter memorable date: ')
+		 },
+		 username => sub { return 'acmeuser' },
+		 maiden => sub {
+		   return $term->readline('Enter mother\'s maiden name: ')
+		 }
+		 );
+my $credentials = Finance::Bank::Cahoot::CredentialsProvider::Callback->new(%callbacks);
+my $cahoot = Finance::Bank::Cahoot->new(credentials => $credentials );
+$cahoot->login();
+
+foreach my $account ($cahoot->accounts()) {
+  next unless $account->{name} =~ /current/;
+  $cahoot->set_account($account->{account});
+  my $snapshot = $cahoot->snapshot;
+  foreach my $row (@$snapshot) {
+    print join ',', @$row; print "\n";
+  }
+}
