@@ -44,18 +44,20 @@ while (my ($message, $credentials) = each %invalid_details) {
 
 {
   my $provider =
-    Finance::Bank::Cahoot::CredentialsProvider::Callback->new(credentials => [qw(account username password maiden)],
-						      options => { account => sub { return '12345678' },
-								   username => sub { return 'username' },
-								   password => sub { return defined $_[0] ? substr('secret', $_[0],1) : 'secret' },
-								   maiden => sub { return 'Smith' } });
+    Finance::Bank::Cahoot::CredentialsProvider::Callback->new(
+		credentials => [qw(account username password maiden)],
+		options => { account => sub { return '12345678' },
+			     username => sub { return 'username' },
+			     password => sub { return defined $_[0]
+						 ? substr('secret', $_[0]-1, 1) : 'secret' },
+			     maiden => sub { return 'Smith' } });
 
   is($provider->account, '12345678', 'account name');
   is($provider->username, 'username', 'user name');
-  is($provider->password(0), 's', 'password character 1');
-  is($provider->password(1), 'e', 'password character 2');
-  is($provider->password(2), 'c', 'password character 3');
-  is($provider->password(3), 'r', 'password character 4');
+  is($provider->password(1), 's', 'password character 1');
+  is($provider->password(2), 'e', 'password character 2');
+  is($provider->password(3), 'c', 'password character 3');
+  is($provider->password(4), 'r', 'password character 4');
   is($provider->maiden, 'Smith', 'mother\'s maiden name');
   undef $provider;
 }

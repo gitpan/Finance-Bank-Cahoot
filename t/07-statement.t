@@ -2,23 +2,54 @@
 
 use strict;
 use lib 't/lib';
-use Test::More tests => 19;
+use Test::More tests => 36;
 use Test::Exception;
+use Test::Deep;
 
 use Mock::CahootWebServer;
 my $cs = new Mock::CahootWebServer;
 
 use_ok('Finance::Bank::Cahoot');
+use_ok('Finance::Bank::Cahoot::Statement');
+use_ok('Finance::Bank::Cahoot::Statement::Entry');
 use_ok('Finance::Bank::Cahoot::CredentialsProvider::Constant');
 
 {
-  my $creds = Finance::Bank::Cahoot::CredentialsProvider::Constant->new(credentials => [qw(account password place date username maiden)],
-									options => { account => '12345678',
-										     password => 'verysecret',
-										     place => 'London',
-										     date => '01/01/1906',
-										     username => 'dummy',
-										     maiden => 'Smith' });
+  dies_ok {
+    my $row = Finance::Bank::Cahoot::Statement::Entry->new;
+  } 'no data row to constructor: expected to fail';
+  like($@, qr/No row data passed to Finance::Bank::Cahoot::Statement::Entry constructor at /,
+       'exception: no data row to constructor');
+
+  dies_ok {
+    my $row = Finance::Bank::Cahoot::Statement::Entry->new('bogus')
+  } 'invalid data row to constructor: expected to fail';
+  like($@, qr/row data is not an array ref at /,
+       'exception: invalid data row to constructor');
+
+    dies_ok {
+    my $row = Finance::Bank::Cahoot::Statement->new;
+  } 'no data row to constructor: expected to fail';
+  like($@, qr/No statement table passed to Finance::Bank::Cahoot::Statement constructor at /,
+       'exception: no statement table to constructor');
+
+  dies_ok {
+    my $row = Finance::Bank::Cahoot::Statement->new('bogus')
+  } 'invalid data row to constructor: expected to fail';
+  like($@, qr/statement is not an array ref at /,
+       'exception: invalid statement to constructor');
+
+}
+
+{
+  my $creds = Finance::Bank::Cahoot::CredentialsProvider::Constant->new(
+	credentials => [qw(account password place date username maiden)],
+	options => { account => '12345678',
+		     password => 'verysecret',
+		     place => 'London',
+		     date => '01/01/1906',
+		     username => 'dummy',
+		     maiden => 'Smith' });
 
   ok(my $c = Finance::Bank::Cahoot->new(credentials => $creds),
      'valid credentials - providing premade credentials object');
@@ -45,20 +76,47 @@ use_ok('Finance::Bank::Cahoot::CredentialsProvider::Constant');
 
   {
     my $statement = $c->statement();
-    is_deeply($statement,
-	      [
-	       [ '15 Oct 2007', 'ACME PHONE CORP BILLING', '13.02', '', '672.19'
+    isa($statement, 'Finance::Bank::Cahoot::Statement', 'got a statement');
+    my $row = $statement->rows->[0];
+    foreach my $method (qw(time date details debit credit balance)) {
+      can_ok($row, $method);
+    }
+    cmp_deeply($statement->rows,
+	       array_each(isa('Finance::Bank::Cahoot::Statement::Entry')),
+	       'got an array of statement rows');
+    cmp_deeply($statement->rows,
+	       [ methods(balance => '672.19',
+			 debit => '13.02',
+			 credit => '',
+			 date => '15 Oct 2007',
+			 time => 1192406400,
+			 details => 'ACME PHONE CORP BILLING'),
+                 methods(balance => '656.64',
+			 debit => '15.55',
+			 credit => '',
+			 date => '16 Oct 2007',
+			 time => 1192492800,
+			 details => 'LEC CO ELECTRICITY'),
+                 methods(balance => '556.56',
+			 debit => '100.08',
+			 credit => '',
+			 date => '22 Oct 2007',
+			 time => 1193011200,
+			 details => 'MAMMA ITALINA EUR 140.00'),
+                 methods(balance => '555.16',
+			 debit => '1.40',
+			 credit => '',
+			 date => '22 Oct 2007',
+			 time => 1193011200,
+			 details => 'SERVICE CHARGE DEBIT'),
+                 methods(balance => '2382.42',
+			 debit => '',
+			 credit => '1827.26',
+			 date => '31 Oct 2007',
+			 time => 1193788800,
+			 details => 'BIGGINS IT CONSULTANTS')
 	       ],
-	       [ '16 Oct 2007', 'LEC CO ELECTRICITY', '15.55', '', '656.64'
-	       ],
-	       [ '22 Oct 2007', 'MAMMA ITALINA EUR 140.00', '100.08', '', '556.56'
-	       ],
-	       [ '22 Oct 2007', 'SERVICE CHARGE DEBIT', '1.40', '', '555.16'
-	       ],
-	       [ '31 Oct 2007', 'BIGGINS IT CONSULTANTS', '', '1827.26', '2382.42'
-	       ]
-	      ],
-	      'extracted latest statement');
+	       'got correct statement');
   }
   foreach my $method (qw(account password place date username maiden)) {
     no strict 'refs';
@@ -93,53 +151,53 @@ use_ok('Finance::Bank::Cahoot::CredentialsProvider::Constant');
 }
 
 {
-  my $creds = Finance::Bank::Cahoot::CredentialsProvider::Constant->new(credentials => [qw(account password place date username maiden)],
-									options => { account => '12345678',
-										     password => 'verysecret',
-										     place => 'London',
-										     date => '01/01/1906',
-										     username => 'dummy',
-										     maiden => 'Smith' });
+  my $creds = Finance::Bank::Cahoot::CredentialsProvider::Constant->new(
+	credentials => [qw(account password place date username maiden)],
+	options => { account => '12345678',
+		     password => 'verysecret',
+		     place => 'London',
+		     date => '01/01/1906',
+		     username => 'dummy',
+		     maiden => 'Smith' });
 
   my $c = Finance::Bank::Cahoot->new(credentials => $creds);
   my @accounts = $c->accounts();
   $c->set_account($accounts[0]->{account});
   my $statements = $c->statements;
   is_deeply($statements,
-	    [
-	     { 'description' => '16/09/07 - 15/10/07',
-	       'end' => 1444172400,
-	       'start' => 1473202800 },
-	     { 'description' => '16/08/07 - 15/09/07',
-	       'end' => 1441580400,
-	       'start' => 1470524400 },
-	     { 'description' => '16/07/07 - 15/08/07',
-	       'end' => 1438902000,
-	       'start' => 1467846000 },
-	     { 'description' => '16/06/07 - 15/07/07',
-	       'end' => 1436223600,
-	       'start' => 1465254000 },
-	     { 'description' => '16/05/07 - 15/06/07',
-	       'end' => 1433631600,
-	       'start' => 1462575600 },
-	     { 'description' => '16/04/07 - 15/05/07',
-	       'end' => 1430953200,
-	       'start' => 1459983600 },
-	     { 'description' => '16/03/07 - 15/04/07',
-	       'end' => 1428361200,
-	       'start' => 1457308800 },
-	     { 'description' => '16/02/07 - 15/03/07',
-	       'end' => 1425686400,
-	       'start' => 1454803200 },
-	     { 'description' => '16/01/07 - 15/02/07',
-	       'end' => 1423267200,
-	       'start' => 1452124800 },
-	     { 'description' => '16/12/06 - 15/01/07',
-	       'end' => 1420588800,
-	       'start' => 1480982400 },
-	     { 'description' => '16/11/06 - 15/12/06',
-	       'end' => 1449360000,
-	       'start' => 1478390400 },
+	    [ { 'description' => '16/09/07 - 15/10/07',
+		'end' => 1444176000,
+		'start' => 1473206400 },
+	      { 'description' => '16/08/07 - 15/09/07',
+		'end' => 1441584000,
+		'start' => 1470528000 },
+ 	      { 'description' => '16/07/07 - 15/08/07',
+		'end' => 1438905600,
+		'start' => 1467849600 },
+	      { 'description' => '16/06/07 - 15/07/07',
+		'end' => 1436227200,
+		'start' => 1465257600 },
+	      { 'description' => '16/05/07 - 15/06/07',
+		'end' => 1433635200,
+		'start' => 1462579200 },
+	      { 'description' => '16/04/07 - 15/05/07',
+		'end' => 1430956800,
+		'start' => 1459987200 },
+	      { 'description' => '16/03/07 - 15/04/07',
+		'end' => 1428364800,
+		'start' => 1457308800 },
+	      { 'description' => '16/02/07 - 15/03/07',
+		'end' => 1425686400,
+		'start' => 1454803200 },
+	      { 'description' => '16/01/07 - 15/02/07',
+		'end' => 1423267200,
+		'start' => 1452124800 },
+	      { 'description' => '16/12/06 - 15/01/07',
+		'end' => 1420588800,
+		'start' => 1480982400 },
+	      { 'description' => '16/11/06 - 15/12/06',
+		'end' => 1449360000,
+		'start' => 1478390400 }
 	    ],
 	    'got list of all statements');
 
@@ -152,18 +210,38 @@ use_ok('Finance::Bank::Cahoot::CredentialsProvider::Constant');
      'selected 4th statement in list');
 
   my $statement = $c->statement();
-  is_deeply($statement,
-	    [
-	     [ '15 Oct 2007', 'ACME PHONE CORP BILLING', '13.02', '', '672.19'
+  isa($statement, 'Finance::Bank::Cahoot::Statement', 'got a statement');
+  cmp_deeply($statement->rows,
+             [ methods(balance => '672.19',
+		       debit => '13.02',
+		       credit => '',
+		       date => '15 Oct 2007',
+		       time => 1192406400,
+		       details => 'ACME PHONE CORP BILLING'),
+	       methods(balance => '656.64',
+		       debit => '15.55',
+		       credit => '',
+		       date => '16 Oct 2007',
+		       time => 1192492800,
+		       details => 'LEC CO ELECTRICITY'),
+	       methods(balance => '556.56',
+		       debit => '100.08',
+		       credit => '',
+		       date => '22 Oct 2007',
+		       time => 1193011200,
+		       details => 'MAMMA ITALINA EUR 140.00'),
+	       methods(balance => '555.16',
+		       debit => '1.40',
+		       credit => '',
+		       date => '22 Oct 2007',
+		       time => 1193011200,
+		       details => 'SERVICE CHARGE DEBIT'),
+	       methods(balance => '2382.42',
+		       debit => '',
+		       credit => '1827.26',
+		       date => '31 Oct 2007',
+		       time => 1193788800,
+		       details => 'BIGGINS IT CONSULTANTS')
 	     ],
-	     [ '16 Oct 2007', 'LEC CO ELECTRICITY', '15.55', '', '656.64'
-	     ],
-	     [ '22 Oct 2007', 'MAMMA ITALINA EUR 140.00', '100.08', '', '556.56'
-	     ],
-	     [ '22 Oct 2007', 'SERVICE CHARGE DEBIT', '1.40', '', '555.16'
-	     ],
-	     [ '31 Oct 2007', 'BIGGINS IT CONSULTANTS', '', '1827.26', '2382.42'
-	     ]
-	    ],
-	   'extracted another statement');
+	     'extracted another statement');
 }

@@ -10,7 +10,7 @@ use strict;
 use warnings 'all';
 use vars qw($VERSION @REQUIRED_SUBS);
 
-$VERSION = '0.01';
+$VERSION = '0.02';
 @REQUIRED_SUBS = qw(account place date maiden username password);
 
 use Carp qw(croak);
@@ -18,6 +18,8 @@ use Date::Parse qw(str2time);
 use English '-no_match_vars';
 use HTML::TableExtract;
 use WWW::Mechanize;
+
+use Finance::Bank::Cahoot::Statement;
 
 sub new
 {
@@ -209,9 +211,7 @@ sub statement
   my $te = HTML::TableExtract->new(headers => [qw(Date Transaction Withdrawn Paid Balance)]);
   $te->parse($self->{_mech}->content);
   my @table = $te->first_table_found->rows;
-  my $clean_table = _trim_table \@table;
-  my @sorted_table = sort { str2time($a->[0]) <=> str2time($b->[0]) } @{$clean_table};
-  return \@sorted_table;
+  return Finance::Bank::Cahoot::Statement->new(_trim_table \@table);
 }
 
 sub statements
@@ -231,8 +231,8 @@ sub statements
   foreach my $date (@dates) {
     $date =~ m/(\S+)\s*-\s*(\S+)/gsi;
     push @statements, { description => $date,
-			start => str2time($1),
-			end => str2time($2)
+			start => str2time($1.' 00:00:00 +0000 (GMT)'),
+			end => str2time($2.' 00:00:00 +0000 (GMT)')
 		      };
   }
   $self->{_statements} = \@statements;
@@ -272,9 +272,7 @@ sub snapshot
   my $te = HTML::TableExtract->new(headers => [qw(Date Type Withdrawn Paid)]);
   $te->parse($self->{_mech}->content);
   my @table = $te->first_table_found->rows;
-  my $clean_table = _trim_table \@table;
-  my @sorted_table = sort { str2time($a->[0]) <=> str2time($b->[0]) } @{$clean_table};
-  return \@sorted_table;
+  return Finance::Bank::Cahoot::Statement->new(_trim_table \@table);
 }
 
 sub accounts
@@ -304,6 +302,8 @@ sub accounts
 
 1;
 __END__
+
+=for stopwords online HTTPS login Login Connell Belka
 
 =head1 NAME
 
@@ -394,7 +394,7 @@ single account, and contains this data:
 
 =item B<account> - the account number
 
-=item B<balance> - the current balanc eof the account
+=item B<balance> - the current balance of the account
 
 =item B<available> - the currently available funds (including any overdrafts)
 
@@ -421,7 +421,7 @@ account number, C<statements> will automatically login (if required) and select
 that account.
 
 If no account has been selected and no account is supplied by the caller,
-C<statement> will C<croak>.
+C<statements> will C<croak>.
 
 
 Each item in the returned list is a hash reference that holds summary information
@@ -431,10 +431,9 @@ for a single statement, and contains this data:
 
 =item B<description> - a text description of the date of the statement, typically in the form C<DD/MM/YY - DD/MM/YY>
 
-=item B<start> - the date of the start of the statement as a time as returned by the C<time> function.the account number
+=item B<start> - the date of the start of the statement as a time as returned by the C<time> function.
 
 =item B<end> - the date of the end of the statement as a time as returned by the C<time> function.
-
 
 =back
 
@@ -453,8 +452,8 @@ by the caller, C<statement> will C<croak>.
 =item B<snapshot>
 
 Return a table of transactions from the account snapshot. An optional account
-arameter may be supplied as an 8-digit account number. If no account has
-perviously been selected or no account number is supplied, C<snapshot>
+parameter may be supplied as an 8-digit account number. If no account has
+previously been selected or no account number is supplied, C<snapshot>
 will C<croak>. The return value is a reference to a list of list references.
 Each entry in the top-level list is a row in the statement and the rows
 are data from the account in the order date, description, amount withdrawn,
@@ -469,8 +468,8 @@ amount paid in.
 =item B<statement>
 
 Return a table of transactions from a selected statement. An optional account
-arameter may be supplied as an 8-digit account number. If no account has
-perviously been selected or no account number is supplied, C<statement>
+parameter may be supplied as an 8-digit account number. If no account has
+previously been selected or no account number is supplied, C<statement>
 will C<croak>. The return value is a reference to a list of list references.
 Each entry in the top-level list is a row in the statement and the rows
 are data from the account in the order date, description, amount withdrawn,

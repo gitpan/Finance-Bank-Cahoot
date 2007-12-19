@@ -14,7 +14,7 @@ use vars qw($VERSION $AUTOLOAD);
 use Carp qw(croak);
 use Term::ReadLine;
 
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 sub _init
 {
@@ -38,22 +38,35 @@ sub get
 {
   my ($self, $credential, $offset) = @_;
 
-  my $prompt = $self->{_prompts}->{$credential};
-  $prompt = 'Enter '.$credential.': ' if not defined $prompt;
+  my $prompt;
+  if (defined $self->{_prompts}->{$credential}) {
+    $prompt = sprintf $self->{_prompts}->{$credential}, $offset;
+  } else {
+    if (defined $offset) {
+      $prompt = sprintf 'Enter character %d of '.$credential.': ', $offset;
+    } else {
+      $prompt = 'Enter '.$credential.': ';
+    }
+  }
   my $str;
   if (defined $self->{$credential}) {
     $str = $self->{$credential};
   } else {
     $str = $self->{_console}->readline($prompt);
   }
-
-  return substr $str, $offset, 1 if defined $offset;
-  return $str;
+  return $str if length $str == 1;
+  if (defined $offset) {
+    return substr $str, $offset - 1, 1;
+  } else {
+    return $str;
+  }
 }
 
 1;
 
 __END__
+
+=for stopwords Connell Belka username online
 
 =head1 NAME
 
@@ -68,7 +81,7 @@ __END__
 
 =head1 DESCRIPTION
 
-This module provides a C<Term::ReadLine> implementation of a CredentialsProviderProvider
+This module provides a C<Term::ReadLine> implementation of a credentials provider
 for console entry of credentials. Each credentials method can be overridden by
 a constant parameter to reduce the amount of console interaction with the user in
 the case of less security sensitive data such as a username. In addition to the
@@ -82,14 +95,10 @@ value overrides, the text prompt for each readline method can also be overridden
 
 Create a new instance of the credentials provider.
 
-=item *
-
-B<credentials> is an array ref of all the credentials types available via the
+=item B<credentials> is an array ref of all the credentials types available via the
 credentials provider.
 
-=item *
-
-B<options> is a hash ref of optional default values and prompts for each
+=item B<options> is a hash ref of optional default values and prompts for each
 credential. Prompts are provided in C<options> using keys of the form
 C<credential_prompt>.
 
@@ -101,7 +110,7 @@ C<credential_prompt>.
 =item B<get>
 
 Returns a credential value whose name is passed as the first parameter. An
-optional  character offset (0 is the first character) may also be provided.
+optional  character offset (1 is the first character) may also be provided.
 
   my $password_char = $provider->password(5);
 

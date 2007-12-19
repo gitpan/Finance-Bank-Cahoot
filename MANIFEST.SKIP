@@ -1,4 +1,6 @@
 blib
+cover_db
 Makefile$
 Makefile.old$
 MANIFEST.bak$
+\.DS_Store

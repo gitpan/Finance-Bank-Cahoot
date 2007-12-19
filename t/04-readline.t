@@ -1,7 +1,8 @@
-#!/usr/bin/perl -w
+#! /usr/bin/perl
 
 use strict;
-use Test::More tests => 49;
+use warnings;
+use Test::More tests => 22;
 use Test::Exception;
 use Test::MockObject;
 use Carp;
@@ -50,22 +51,20 @@ while (my ($message, $credentials) = each %invalid_details) {
 
 {
   my $provider =
-    Finance::Bank::Cahoot::CredentialsProvider::ReadLine->new(credentials => [qw(account username password maiden date)],
-						      options => { date => '10/01/70',
-								   account_prompt  => '::account::',
-								   password_prompt => '::password::',
-								   maiden_prompt   => '::maiden::' });
-  foreach my $credential (qw(account username password maiden)) {
-    is($provider->date, '10/01/70', 'constant value');
-    is($provider->account, '::account::bogus data', 'account method');
-    is($provider->username, 'Enter username: bogus data', 'username method');
-    is($provider->password, '::password::bogus data', 'password method');
-    is($provider->maiden, '::maiden::bogus data', 'maiden method');
-  }
-  foreach my $credential (qw(account username password maiden)) {
-    is($provider->account(11), 'b', 'account method');
-    is($provider->username(13), 'e', 'username method');
-    is($provider->password(14), 'g', 'password method');
-    is($provider->maiden(-1), 'a', 'maiden method');
-  }
+    Finance::Bank::Cahoot::CredentialsProvider::ReadLine->new(
+		credentials => [qw(account username password maiden date)],
+		options => { date => '10/01/70',
+			     account_prompt  => '::account::',
+			     password_prompt => '::password::',
+			     maiden_prompt   => '::maiden::' });
+  is($provider->date, '10/01/70', 'constant value');
+  is($provider->account, '::account::bogus data', 'account method');
+  is($provider->username, 'Enter username: bogus data', 'username method');
+  is($provider->password, '::password::bogus data', 'password method');
+  is($provider->maiden, '::maiden::bogus data', 'maiden method');
+
+  is($provider->account(12), 'b', 'account method');
+  is($provider->username(14), 'e', 'username method');
+  is($provider->password(15), 'g', 'password method');
+  is($provider->maiden(-1), 't', 'maiden method');
 }

@@ -6,6 +6,7 @@ WriteMakefile(
 	      'NO_META'      => 1,
 	      'VERSION_FROM' => 'lib/Finance/Bank/Cahoot.pm', # finds $VERSION
 	      'PREREQ_PM'    => { 'Carp' => 0,
+				  'Class::Accessor' => 0,
 				  'Crypt::CBC' => 0,
 				  'Crypt::DES_PP' => 0,
                                   'Date::Parse' => 0,
@@ -18,6 +19,7 @@ WriteMakefile(
                                   'HTML::TableExtract' => 0,
                                   'IO::File' => 0,
                                   'Term::ReadLine' => 0,
+                                  'Test::Deep' => 0,
                                   'Test::Exception' => 0,
                                   'Test::MockObject' => 0,
                                   'Test::More' => 0,

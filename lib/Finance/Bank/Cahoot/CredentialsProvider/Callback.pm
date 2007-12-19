@@ -13,7 +13,7 @@ use vars qw($VERSION $AUTOLOAD);
 
 use Carp qw(croak);
 
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 sub _init
 {
@@ -37,6 +37,8 @@ sub get
 1;
 __END__
 
+=for stopwords Connell Belka
+
 =head1 NAME
 
  Finance::Bank::Cahoot::CredentialsProvider::Callback - credentials provider that uses a callback to gather the required information
@@ -51,7 +53,7 @@ __END__
 
 =head1 DESCRIPTION
 
-This module provides an implementation of a CredentialsProviderProvider where each of
+This module provides an implementation of a credentials provider where each of
 the credentials is provided by a user-supplied callback. All callbacks return a
 text string. Any callback may be optionally supplied a character offset in the
 credentials value (first character is 0).
@@ -64,14 +66,10 @@ credentials value (first character is 0).
 
 Create a new instance of the credentials provider. All parameters are mandatory.
 
-=item *
-
-B<credentials> is an array ref of all the credentials types available via the
+=item B<credentials> is an array ref of all the credentials types available via the
 credentials provider.
 
-=item *
-
-B<options> is a hash ref of callback routines for each credential.
+=item B<options> is a hash ref of callback routines for each credential.
 
 =item B<get>
 

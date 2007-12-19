@@ -76,7 +76,7 @@ METHODS
 
         name - the text name of the account
         account - the account number
-        balance - the current balanc eof the account
+        balance - the current balance of the account
         available - the currently available funds (including any overdrafts)
 
     set_account
@@ -98,7 +98,7 @@ METHODS
         automatically login (if required) and select that account.
 
         If no account has been selected and no account is supplied by the
-        caller, "statement" will "croak".
+        caller, "statements" will "croak".
 
         Each item in the returned list is a hash reference that holds
         summary information for a single statement, and contains this data:
@@ -106,9 +106,10 @@ METHODS
         description - a text description of the date of the statement,
         typically in the form "DD/MM/YY - DD/MM/YY"
         start - the date of the start of the statement as a time as returned
-        by the "time" function.the account number
+        by the "time" function.
         end - the date of the end of the statement as a time as returned by
         the "time" function.
+
     set_statement
         Select a statement for data retrieval using a statement description
         previously returned from "statements". The text description of the
@@ -123,8 +124,8 @@ METHODS
 
     snapshot
         Return a table of transactions from the account snapshot. An
-        optional account arameter may be supplied as an 8-digit account
-        number. If no account has perviously been selected or no account
+        optional account parameter may be supplied as an 8-digit account
+        number. If no account has previously been selected or no account
         number is supplied, "snapshot" will "croak". The return value is a
         reference to a list of list references. Each entry in the top-level
         list is a row in the statement and the rows are data from the
@@ -139,8 +140,8 @@ METHODS
 
     statement
         Return a table of transactions from a selected statement. An
-        optional account arameter may be supplied as an 8-digit account
-        number. If no account has perviously been selected or no account
+        optional account parameter may be supplied as an 8-digit account
+        number. If no account has previously been selected or no account
         number is supplied, "statement" will "croak". The return value is a
         reference to a list of list references. Each entry in the top-level
         list is a row in the statement and the rows are data from the

@@ -13,7 +13,7 @@ use vars qw($VERSION);
 use Carp qw(croak);
 use English '-no_match_vars';
 
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 sub new
 {
@@ -60,6 +60,8 @@ sub get
 
 __END__
 
+=for stopwords Connell Belka
+
 =head1 NAME
 
  Finance::Bank::Cahoot::CredentialsProvider - abstract base class for credentials providers
@@ -86,14 +88,10 @@ Create a new instance of a credentials provider. Each credential is available
 with its own access method of the same name. All methods may be optionally supplied a
 character offset in the credentials value (first character is 0).
 
-=item *
-
-B<credentials> is an array ref of all the credentials types available via the
+=item B<credentials> is an array ref of all the credentials types available via the
 credentials provider.
 
-=item *
-
-B<options> is a hash ref of options for each credential. These are
+=item B<options> is a hash ref of options for each credential. These are
 used by the credentials provider in an implementation-defined manner.
 
 =back
@@ -104,7 +102,7 @@ used by the credentials provider in an implementation-defined manner.
 
 =item B<_init>
 
-Initialisation routine for the derived class to implement. Called by C<new>
+Initialization routine for the derived class to implement. Called by C<new>
 with the credentials options as a hash reference. In the following example,
 taken from the the C<Constant> credentials provider, C<_init> simply stores
 each option value in the class:

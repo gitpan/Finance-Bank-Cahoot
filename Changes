@@ -1,3 +1,11 @@
+0.02    19 December 2009
+        Added new classs Finance::Bank::Cahoot::Statement and
+        Finance::Bank::Cahoot::Statement::Entries which are now used as
+        return types from the snapshot and statement methods of
+        Finance::Bank::Cahoot.
+
+        POD documentation has been tidied in a number of areas.
+
 0.01    16 December 2009
         Initial release
 

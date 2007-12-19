@@ -1,9 +1,11 @@
-#!/usr/bin/perl -w
+#! /usr/bin/perl
 
 use strict;
+use warnings;
 use lib 't/lib';
-use Test::More tests => 6;
+use Test::More tests => 14;
 use Test::Exception;
+use Test::Deep;
 
 use Mock::CahootWebServer;
 my $cs = new Mock::CahootWebServer;
@@ -12,13 +14,14 @@ use_ok('Finance::Bank::Cahoot');
 use_ok('Finance::Bank::Cahoot::CredentialsProvider::Constant');
 
 {
-  my $creds = Finance::Bank::Cahoot::CredentialsProvider::Constant->new(credentials => [qw(account password place date username maiden)],
-									options => { account => '12345678',
-										     password => 'verysecret',
-										     place => 'London',
-										     date => '01/01/1906',
-										     username => 'dummy',
-										     maiden => 'Smith' });
+  my $creds = Finance::Bank::Cahoot::CredentialsProvider::Constant->new(
+	credentials => [qw(account password place date username maiden)],
+	options => { account => '12345678',
+		     password => 'verysecret',
+		     place => 'London',
+		     date => '01/01/1906',
+		     username => 'dummy',
+		     maiden => 'Smith' });
 
   ok(my $c = Finance::Bank::Cahoot->new(credentials => $creds),
      'valid credentials - providing premade credentials object');
@@ -38,28 +41,69 @@ use_ok('Finance::Bank::Cahoot::CredentialsProvider::Constant');
 
   {
     my $statement = $c->snapshot();
-    is_deeply($statement,
-	      [
-	       [ '22 Nov 2007', 'BIGGINS IT CONSULTANTS', '1827.26', ''
+    isa($statement, 'Finance::Bank::Cahoot::Statement', 'got a statement');
+    my $row = $statement->rows->[0];
+    foreach my $method (qw(time date details debit credit balance)) {
+      can_ok($row, $method);
+    }
+    cmp_deeply($statement->rows,
+	       array_each(isa('Finance::Bank::Cahoot::Statement::Entry')),
+	       'got an array of statement rows');
+    cmp_deeply($statement->rows,
+	       array_each(methods(balance => undef)),
+	       'no balance in a snapshot');
+    cmp_deeply($statement->rows,
+	       [ methods('debit' => '',
+			 'credit' => '15.00',
+			 'date' => '15 Dec 2007',
+			 'time' => 1197676800,
+			 'details' => 'JON DOE'),
+		 methods('debit' => '',
+			 'credit' => '14.45',
+			 'date' => '15 Dec 2007',
+			 'time' => 1197676800,
+			 'details' => 'MARK SMITH'),
+		 methods('debit' => '18.72',
+			 'credit' => '',
+			 'date' => '11 Dec 2007',
+			 'time' => 1197331200,
+			 'details' => 'ACME PHONE CORP BILLING'),
+		 methods('debit' => '50.00',
+			 'credit' => '',
+			 'date' => '10 Dec 2007',
+			 'time' => 1197244800,
+			 'details' => 'MAIN STREET ATM'),
+		 methods('debit' => '34.12',
+			 'credit' => '',
+			 'date' => '08 Dec 2007',
+			 'time' => 1197072000,
+			 'details' => 'LEC CO ELECTRICITY'),
+		 methods('debit' => '37.11',
+			 'credit' => '',
+			 'date' => '08 Dec 2007',
+			 'time' => 1197072000,
+			 'details' => 'GASCO LIMITED'),
+		 methods('debit' => '2.25',
+			 'credit' => '',
+			 'date' => '01 Dec 2007',
+			 'time' => 1196467200,
+			 'details' => 'TAX ON CR INTEREST'),
+		 methods('debit' => '',
+			 'credit' => '11.23',
+			 'date' => '01 Dec 2007',
+			 'time' => 1196467200,
+			 'details' => 'INTEREST PAID'),
+		 methods('debit' => '938.65',
+			 'credit' => '',
+			 'date' => '23 Nov 2007',
+			 'time' => 1195776000,
+			 'details' => 'GIVESALOT CHARITY CREDIT CARD'),
+		 methods('debit' => '1827.26',
+			 'credit' => '',
+			 'date' => '22 Nov 2007',
+			 'time' => 1195689600,
+			 'details' => 'BIGGINS IT CONSULTANTS')
 	       ],
-	       [ '23 Nov 2007', 'GIVESALOT CHARITY CREDIT CARD', '938.65', ''
-	       ],
-	       [ '01 Dec 2007', 'TAX ON CR INTEREST', '2.25', ''
-	       ],
-	       [ '01 Dec 2007', 'INTEREST PAID', '', '11.23'
-	       ],
-	       [ '08 Dec 2007', 'LEC CO ELECTRICITY', '34.12', ''
-	       ],
-	       [ '08 Dec 2007', 'GASCO LIMITED', '37.11', ''
-	       ],
-	       [ '10 Dec 2007', 'MAIN STREET ATM', '50.00', ''
-	       ],
-	       [ '11 Dec 2007', 'ACME PHONE CORP BILLING', '18.72', ''
-	       ],
-	       [ '15 Dec 2007', 'JON DOE', '', '15.00'
-	       ],
-	       [ '15 Dec 2007', 'MARK SMITH', '', '14.45'
-	       ]
-	      ], 'got statement');
+	       'got expected statement');
   }
 }

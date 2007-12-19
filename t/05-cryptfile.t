@@ -29,8 +29,10 @@ my %invalid_details = ('Must provide a list of credentials'
 
 		       'Can\'t open .* for writing: No such file or directory'
 		       => { credentials => [qw(account password username)],
-			    options => { key => 'test', keyfile => '/W^%$#/@%W$S', fallback => 'Constant' },
-			    fallback_options => { account => '12345678', username => 'acmeuser', password => 'secret' } },
+			    options => { key => 'test', keyfile => '/W^%$#/@%W$S', fallback => 'Constant',
+					 fallback_options => { account => '12345678',
+							       username => 'acmeuser',
+							       password => 'secret' } } },
 
 		       'Invalid fallback provider bogus (1)'
 		       => { credentials => [qw(account password username)],
@@ -69,13 +71,14 @@ while (my ($message, $credentials) = each %invalid_details) {
 {
   unlink 'temp_keyfile';
   my $provider =
-    Finance::Bank::Cahoot::CredentialsProvider::CryptFile->new(credentials => [qw(account username password)],
-							       options => { key => 'verysecret',
-									    keyfile => 'temp_keyfile',
-									    fallback => 'Constant',
-									    fallback_options => { account => '12345678',
-												  username => 'acmeuser',
-												  password => 'secret' } });
+    Finance::Bank::Cahoot::CredentialsProvider::CryptFile->new(
+	credentials => [qw(account username password)],
+	options => { key => 'verysecret',
+		     keyfile => 'temp_keyfile',
+		     fallback => 'Constant',
+		     fallback_options => { account => '12345678',
+					   username => 'acmeuser',
+					   password => 'secret' } });
   is($provider->account, '12345678', 'account method via constant fallback');
   is($provider->username, 'acmeuser', 'username method via constant fallback');
   is($provider->password, 'secret', 'password method via constant fallback');
@@ -88,9 +91,9 @@ while (my ($message, $credentials) = each %invalid_details) {
   undef $provider;
 
   my $provider2 =
-    Finance::Bank::Cahoot::CredentialsProvider::CryptFile->new(credentials => [qw(account username password)],
-							       options => { key => 'verysecret',
-									    keyfile => 'temp_keyfile' });
+    Finance::Bank::Cahoot::CredentialsProvider::CryptFile->new(
+	credentials => [qw(account username password)],
+	options => { key => 'verysecret', keyfile => 'temp_keyfile' });
   is($provider2->account, '12345678', 'account method via autosaved cryptfile');
   is($provider2->username, 'acmeuser', 'username method via autosaved cryptfile');
   is($provider2->password(0), 's', 'password character 0 method via autosaved cryptfile');

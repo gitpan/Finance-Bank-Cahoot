@@ -14,9 +14,10 @@ use vars qw($VERSION);
 use Carp qw(croak);
 use Crypt::CBC;
 use English '-no_match_vars';
+use File::Slurp qw(slurp);
 use IO::File;
 
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 sub _init
 {
@@ -31,11 +32,13 @@ sub _init
   if (-e $keyfile) {
     my $fh = new IO::File $keyfile, 'r'
       or croak "Can't open $keyfile for reading: $OS_ERROR";
-    my $plaintext = $cipher->decrypt(<$fh>);
+    my $data = slurp $fh;
+    my $plaintext = $cipher->decrypt($data);
     for (split /\n/, $plaintext) {
       my ($k, $v) = split /\t/;
       $self->{$k} = $v;
     }
+    $fh->close;
   }
 
   if (defined $options->{fallback}) {
@@ -43,9 +46,9 @@ sub _init
     eval "use $fallback_class"; ## no critic
     croak 'Invalid fallback provider '.$options->{fallback} if $EVAL_ERROR;
 
-    my $fallback_args = 'credentials => $self->{_credentials}'; ## no critic
-    $fallback_args .= ', options => $options->{fallback_options}' if defined $options->{fallback_options}; ## no critic
-    eval "\$self->{_fallback} = $fallback_class->new($fallback_args)"; ## no critic
+    my $fallback_args = { credentials => $self->{_credentials},
+			  options => $options->{fallback_options} };
+    eval "\$self->{_fallback} = $fallback_class->new(\%{\$fallback_args})"; ## no critic
     croak 'Fallback provider '.$options->{fallback}.' failed to initialise' if $EVAL_ERROR;
   }
 
@@ -86,6 +89,8 @@ sub get
 
 __END__
 
+=for stopwords Connell Belka Gariv passphrase keyfile crypto
+
 =head1 NAME
 
  Finance::Bank::Cahoot::CredentialsProvider::Constant - credentials provider for encrypted stored data
@@ -111,36 +116,24 @@ character is 0).
 
 Create a new instance of a static data credentials provider.
 
-=item *
-
-B<credentials> is an array ref of all the credentials types available via the
+=item B<credentials> is an array ref of all the credentials types available via the
 credentials provider.
 
-=item *
-
-B<options> a hash ref of options for the credentials provider.
+=item B<options> a hash ref of options for the credentials provider.
 
 =over 4
 
-=item *
+=item B<key> Is the text passphrase for encrypting/decrypting the credentials store.
 
-B<key> Is the text passphrase for encrypting/decrypting the credentials store.
-
-=item *
-
-B<keyfile> is an optional path to the credentials store. The default store
+=item B<keyfile> is an optional path to the credentials store. The default store
 is C<$HOME/.cahoot>.
 
-=item *
-
-B<fallback> is the name of a C<Finance::Bank::Cahoot::CredentialsProvider>
+=item B<fallback> is the name of a C<Finance::Bank::Cahoot::CredentialsProvider>
 credentials provider to use for any credentials that are not present in
 the encrypted store. Newly discovered credentials and encrypted and written
 back to the store.
 
-=item *
-
-B<fallback_options> is a hash ref that is passed to the fallback credentials
+=item B<fallback_options> is a hash ref that is passed to the fallback credentials
 provider's constructor as C<options>.
 
   my $provider =
@@ -171,8 +164,8 @@ Jon Connell <jon@figsandfudge.com>
 =head1 LICENSE AND COPYRIGHT
 
 This module takes its inspiration from C<Finance::Bank::Natwest> by Jody Belka.
-The crypto access routes are heavily borrowed from Jim Gariv's
-C<Finance::Bank::Wachovia>.
+The crypto access routes are heavily borrowed from C<Finance::Bank::Wachovia>
+by Jim Gariv.
 
 Copyright 2004 Jim Garvin
 Copyright 2007 by Jon Connell

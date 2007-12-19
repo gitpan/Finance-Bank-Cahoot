@@ -13,7 +13,7 @@ use vars qw($VERSION $AUTOLOAD);
 
 use Carp qw(croak);
 
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 sub _init
 {
@@ -29,7 +29,9 @@ sub _init
 sub get
 {
   my ($self, $credential, $offset) = @_;
-  return substr $self->{$credential}, $offset, 1
+  croak 'Undefined credential '.$credential
+    if not exists $self->{$credential};
+  return substr $self->{$credential}, $offset - 1, 1
     if defined $offset;
   return $self->{$credential};
 }
@@ -37,6 +39,8 @@ sub get
 1;
 
 __END__
+
+=for stopwords Connell Belka
 
 =head1 NAME
 
@@ -52,7 +56,7 @@ __END__
 
 Provides a credentials provider that returns static data. Each credential is available
 with its own access method of the same name. All methods may be optionally supplied a
-character offset in the credentials value (first character is 0).
+character offset in the credentials value (first character is 1).
 
 =head1 METHODS
 
@@ -62,19 +66,15 @@ character offset in the credentials value (first character is 0).
 
 Create a new instance of a static data credentials provider.
 
-=item *
-
-B<credentials> is an array ref of all the credentials types available via the
+=item B<credentials> is an array ref of all the credentials types available via the
 credentials provider.
 
-=item *
-
-B<options> is a hash ref of constant return values of credentials.
+=item B<options> is a hash ref of constant return values of credentials.
 
 =item B<get>
 
 Returns a credential value whose name is passed as the first parameter. An
-optional  character offset (0 is the first character) may also be provided.
+optional  character offset (1 is the first character) may also be provided.
 
   my $password_char = $provider->password(5);
 
