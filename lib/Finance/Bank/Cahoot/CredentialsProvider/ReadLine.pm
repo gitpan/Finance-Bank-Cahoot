@@ -14,7 +14,7 @@ use vars qw($VERSION $AUTOLOAD);
 use Carp qw(croak);
 use Term::ReadLine;
 
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 sub _init
 {
@@ -30,7 +30,7 @@ sub _init
       $self->{$arg} = $value;
     }
   }
-  $self->{_console} = new Term::ReadLine;
+  $self->{_console} = new Term::ReadLine 'Cahoot Login Credentials';
   return $self;
 }
 

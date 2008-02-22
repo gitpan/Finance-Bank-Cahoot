@@ -13,7 +13,7 @@ use vars qw($VERSION $AUTOLOAD);
 
 use Carp qw(croak);
 
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 sub _init
 {
@@ -41,7 +41,7 @@ __END__
 
 =head1 NAME
 
- Finance::Bank::Cahoot::CredentialsProvider::Callback - credentials provider that uses a callback to gather the required information
+ Finance::Bank::Cahoot::CredentialsProvider::Callback - Credentials provider that uses callbacks
 
 =head1 SYNOPSIS
 

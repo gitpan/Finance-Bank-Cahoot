@@ -27,8 +27,8 @@ use_ok('Finance::Bank::Cahoot::CredentialsProvider::Constant');
      'valid credentials - providing premade credentials object');
 
   $c->login();
-  my @accounts = $c->accounts();
-  is_deeply(\@accounts,
+  my $accounts = $c->accounts();
+  is_deeply($accounts,
 	    [ { name => 'current account', account => '12345678',
 		balance => '847.83', available => '1847.83' },
 	      { name => 'flexible loan', account => '87654321',
@@ -36,7 +36,7 @@ use_ok('Finance::Bank::Cahoot::CredentialsProvider::Constant');
 	    ],
 	    'Got expected account summary (list)' );
 
-  ok($c->set_account($accounts[0]->{account}),
+  ok($c->set_account($accounts->[0]->{account}),
      'set account for account 0');
 
   {

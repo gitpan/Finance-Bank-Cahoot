@@ -52,7 +52,7 @@ function MM_openBrWindow(theURL,winName,features) { //v2.0
 						<td colspan="2">&nbsp;<span class="mask">Keyboard only users should use the arrow keys to select the password characters below.</span></td>
 					</tr>
 					<tr>
-						<td nowrap class="formFooterSelect"><label for="passwordChar1" class="boldpurple">use your mouse only to select character&nbsp;2&nbsp;from your password:</label></td>
+						<td nowrap class="formFooterSelect"><label for="passwordChar1" class="boldpurple">use your mouse only to select character&nbsp;5&nbsp;from your password:</label></td>
 						<td nowrap class="formFooterSelect">
 						<select title="Password Character 1"  name="passwordChar1" id="passwordChar1" onKeyDown="handleKeyDown(arguments[0])" onclick="overrideChangeEvent = false" onchange="maskCharacter(arguments[0], 'passwordChar2')" onblur="maskCharacter(arguments[0], 'passwordChar2')" >
 								<option value="-" selected>Select...</option>
@@ -99,7 +99,7 @@ function MM_openBrWindow(theURL,winName,features) { //v2.0
 						<td colspan="2"><img src="/Aquarius/web/images/misc/spacer.gif" alt="" width=1 height=10 border="0"></td>
 					</tr>
 					<tr>
-						<td nowrap class="formFooterSelect"><label for="passwordChar2" class="boldpurple">use your mouse only to select character&nbsp;9&nbsp;from your password:</label></td>
+						<td nowrap class="formFooterSelect"><label for="passwordChar2" class="boldpurple">use your mouse only to select character&nbsp;10&nbsp;from your password:</label></td>
 						<td nowrap class="formFooterSelect">
 						<select Title="Password Character 2"  name="passwordChar2" id="passwordChar2" onKeyDown="handleKeyDown(arguments[0])" onclick="overrideChangeEvent = false" onchange="maskCharacter(arguments[0], 'continueButton')" onblur="maskCharacter(arguments[0], 'continueButton')" onfocus="maskPrevious('passwordChar1')" >					  
 								<option value="-" selected>Select...</option>

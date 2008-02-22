@@ -55,6 +55,7 @@ my %invalid_details = ('Must provide a list of credentials'
 while (my ($message, $credentials) = each %invalid_details) {
   unlink 'temp_keyfile';
   dies_ok {
+    local $^W = 0;  ## supress UNIVERSAL::can warning from Crypt::CBC
     my $provider =
       Finance::Bank::Cahoot::CredentialsProvider::CryptFile->new(%{$credentials});
   } $message.': expected to fail';

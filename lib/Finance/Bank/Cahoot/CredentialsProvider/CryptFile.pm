@@ -17,7 +17,7 @@ use English '-no_match_vars';
 use File::Slurp qw(slurp);
 use IO::File;
 
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 sub _init
 {
@@ -93,7 +93,7 @@ __END__
 
 =head1 NAME
 
- Finance::Bank::Cahoot::CredentialsProvider::Constant - credentials provider for encrypted stored data
+ Finance::Bank::Cahoot::CredentialsProvider::CryptFile - Credentials provider for encrypted stored data
 
 =head1 SYNOPSIS
 

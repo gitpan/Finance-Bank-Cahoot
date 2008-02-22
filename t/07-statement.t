@@ -55,8 +55,8 @@ use_ok('Finance::Bank::Cahoot::CredentialsProvider::Constant');
      'valid credentials - providing premade credentials object');
 
   $c->login();
-  my @accounts = $c->accounts();
-  is_deeply(\@accounts,
+  my $accounts = $c->accounts();
+  is_deeply($accounts,
 	    [ { name => 'current account', account => '12345678',
 		balance => '847.83', available => '1847.83' },
 	    { name => 'flexible loan', account => '87654321',
@@ -64,14 +64,14 @@ use_ok('Finance::Bank::Cahoot::CredentialsProvider::Constant');
 	    ],
 	    'got expected account summary (list)' );
 
-  ok($c->set_account($accounts[1]->{account}),
+  ok($c->set_account($accounts->[1]->{account}),
      'set account for account 1');
   $cs->clear;
-  $c->set_account($accounts[1]->{account});
+  $c->set_account($accounts->[1]->{account});
   is($cs->called('get'), 0, 'set account for same acount ignored');
 
   $cs->clear;
-  $c->set_account($accounts[0]->{account});
+  $c->set_account($accounts->[0]->{account});
   is($cs->called('get'), 1, 'set new account');
 
   {
@@ -161,8 +161,8 @@ use_ok('Finance::Bank::Cahoot::CredentialsProvider::Constant');
 		     maiden => 'Smith' });
 
   my $c = Finance::Bank::Cahoot->new(credentials => $creds);
-  my @accounts = $c->accounts();
-  $c->set_account($accounts[0]->{account});
+  my $accounts = $c->accounts();
+  $c->set_account($accounts->[0]->{account});
   my $statements = $c->statements;
   is_deeply($statements,
 	    [ { 'description' => '16/09/07 - 15/10/07',

@@ -4,15 +4,13 @@ use strict;
 use warnings;
 
 use Finance::Bank::Cahoot;
-use Finance::Bank::Cahoot::CredentialsProvider::Callback;
 
 my $cahoot = Finance::Bank::Cahoot->new(
                credentials => 'ReadLine',
 	       credentials_options => { account => '12345678',
 					username => 'acmeuser' });
-$cahoot->login();
-
-foreach my $account ($cahoot->accounts()) {
+my $accounts = $cahoot->accounts;
+foreach my $account (@$accounts) {
   next unless $account->{name} =~ /current/;
   $cahoot->set_account($account->{account});
   my $snapshot = $cahoot->snapshot;

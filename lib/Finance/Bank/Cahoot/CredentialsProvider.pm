@@ -13,7 +13,7 @@ use vars qw($VERSION);
 use Carp qw(croak);
 use English '-no_match_vars';
 
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 sub new
 {
@@ -64,7 +64,7 @@ __END__
 
 =head1 NAME
 
- Finance::Bank::Cahoot::CredentialsProvider - abstract base class for credentials providers
+ Finance::Bank::Cahoot::CredentialsProvider - Abstract base class for credentials providers
 
 =head1 SYNOPSIS
 

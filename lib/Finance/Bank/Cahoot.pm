@@ -10,7 +10,7 @@ use strict;
 use warnings 'all';
 use vars qw($VERSION @REQUIRED_SUBS);
 
-$VERSION = '0.02';
+$VERSION = '0.03';
 @REQUIRED_SUBS = qw(account place date maiden username password);
 
 use Carp qw(croak);
@@ -100,6 +100,14 @@ sub _isa_credentials
   return 1;
 }
 
+sub _check_system_error
+{
+  my ($self) = @_;
+  croak 'General system error returned from Cahoot server.'
+    if $self->{_mech}->content =~ m{/Aquarius/web/en/GeneralSystemError.html};
+  return;
+}
+
 sub login
 {
   my ($self) = @_;
@@ -107,6 +115,7 @@ sub login
   return if $self->{_connected};
 
   $self->{_mech}->get('https://ibank.cahoot.com/servlet/Aquarius/web/en/core_banking/log_in/frameset_top_log_in.html');
+  $self->_check_system_error;
   my %fields = (inputuserid => $self->{_credentials}->username());
   foreach my $input ($self->{_mech}->find_all_inputs()) {
     my $name = $input->name();
@@ -116,7 +125,12 @@ sub login
     $fields{$name} = $self->{_credentials}->date() if $name =~ /memorabledate/i;
     $fields{$name} = $self->{_credentials}->maiden() if $name =~ /mothersmaidenname/i;
   }
-  $self->{_mech}->submit_form(fields => \%fields);
+  {
+    # We submit a form, modifying hidden fields - WWW::Mechanize does not like
+    # this (see FAQ).
+    local $^W = 0; ## no critic
+    $self->{_mech}->submit_form(fields => \%fields);
+  }
 
   my %chars;
   my $label;
@@ -152,6 +166,7 @@ sub _get_frames
 
   foreach my $link ($self->{_mech}->find_all_links(tag => 'frame')) {
     $self->{_mech}->get($link->url());
+    $self->_check_system_error;
   }
   return;
 }
@@ -191,8 +206,8 @@ sub set_account
   $self->login();
   $self->{_accounts} = $self->accounts if not defined $self->{_accounts};
 
-  $self->{_mech}->get('/servlet/com.aquarius.accounts.servlet.PersonalHomepageSelectionServlet?productType=MTA&productId=00'
-		      .$account.'&origin=init');
+  $self->{_mech}->get('/servlet/com.aquarius.accounts.servlet.PersonalHomepageSelectionServlet?productType=MTA&productId=00'.$account.'&origin=init');
+  $self->_check_system_error;
   $self->_get_frames();
   $self->{_current_account} = $account;
   delete $self->{_statements} if defined $self->{_statements};
@@ -208,6 +223,7 @@ sub statement
   croak 'No account currently selected' if not defined $self->{_current_account};
 
   $self->{_mech}->get('/servlet/com.aquarius.accounts.servlet.CurrentAccountStatementEntryServlet?print=yes');
+  $self->_check_system_error;
   my $te = HTML::TableExtract->new(headers => [qw(Date Transaction Withdrawn Paid Balance)]);
   $te->parse($self->{_mech}->content);
   my @table = $te->first_table_found->rows;
@@ -223,6 +239,7 @@ sub statements
   croak 'No account currently selected' if not defined $self->{_current_account};
 
   $self->{_mech}->get('/servlet/com.aquarius.accounts.servlet.CurrentAccountStatementEntryServlet');
+  $self->_check_system_error;
   $self->{_mech}->content =~ m/name="statementPeriods"(.*?)<\/select>/gsi;
   croak 'Statement extraction parsing failed' if not defined $1;
   my $select = $1;
@@ -255,6 +272,7 @@ sub set_statement
     croak 'Invalid statement: '.$statement;
   }
   $self->{_mech}->get('/servlet/com.aquarius.accounts.servlet.CurrentAccountStatementEntryServlet');
+  $self->_check_system_error;
   $self->{_mech}->select('statementPeriods', $statement);
   $self->{_mech}->submit_form();
   return $self;
@@ -269,6 +287,7 @@ sub snapshot
   croak 'No account currently selected' if not defined $self->{_current_account};
 
   $self->{_mech}->get('/servlet/com.aquarius.accounts.servlet.CurrentAccountStatusServlet?origin=print');
+  $self->_check_system_error;
   my $te = HTML::TableExtract->new(headers => [qw(Date Type Withdrawn Paid)]);
   $te->parse($self->{_mech}->content);
   my @table = $te->first_table_found->rows;
@@ -280,7 +299,8 @@ sub accounts
   my ($self) = @_;
   $self->login();
   $self->{_mech}->get('/Aquarius/web/en/core_banking/personal_homepage/frameset_personal_homepage.html');
-  $self->_get_frames();
+  $self->_check_system_error;
+  $self->_get_frames;
   my $content = $self->{_mech}->content();
   my @account_ids = ($content =~ m/PersonalHomepageSelectionServlet.*?productId=(\d+)/gsi);
   my @account_names = ($content =~ m/<b>(.*?):.*?PersonalHomepageSelectionServlet.*?<\/td>/gsi);
@@ -297,7 +317,7 @@ sub accounts
 		      available => shift @available };
   }
   $self->{_accounts} = \@accounts;
-  return @accounts;
+  return \@accounts;
 }
 
 1;
@@ -327,7 +347,7 @@ support to work with WWW::Mechanize.
 					     username => 'dummy',
 					     maiden => 'Smith' } );
 
-  my @accounts = $cahoot->accounts;
+  my $accounts = $cahoot->accounts;
   $cahoot->set_account($accounts->[0]->{account});
   my $snapshot = $cahoot->snapshot;
   foreach my $row (@$snapshot) {

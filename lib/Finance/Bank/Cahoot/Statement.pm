@@ -10,7 +10,7 @@ use strict;
 use warnings 'all';
 use vars qw($VERSION);
 
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 use Carp qw(croak);
 use Finance::Bank::Cahoot::Statement::Entry;
@@ -47,7 +47,7 @@ __END__
 
 =head1 NAME
 
-Finance::Bank::Cahoot::Statement - Check your Cahoot bank accounts from Perl
+Finance::Bank::Cahoot::Statement - Cahoot statement object
 
 =head1 DESCRIPTION
 

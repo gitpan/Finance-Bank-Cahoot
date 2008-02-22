@@ -13,7 +13,7 @@ use vars qw($VERSION $AUTOLOAD);
 
 use Carp qw(croak);
 
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 sub _init
 {
@@ -44,7 +44,7 @@ __END__
 
 =head1 NAME
 
- Finance::Bank::Cahoot::CredentialsProvider::Constant - credentials provider for static data
+ Finance::Bank::Cahoot::CredentialsProvider::Constant - Credentials provider for static data
 
 =head1 SYNOPSIS
 

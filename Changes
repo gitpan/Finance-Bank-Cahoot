@@ -1,3 +1,8 @@
+0.03    19 December 2009
+        Fixed return value of the accounts method of Finance::Bank::Cahoot
+        to be a reference to a list, as documented. Added tests for system
+        error pages returning from the Cahoot server for better diagnostics.
+
 0.02    19 December 2009
         Added new classs Finance::Bank::Cahoot::Statement and
         Finance::Bank::Cahoot::Statement::Entries which are now used as
