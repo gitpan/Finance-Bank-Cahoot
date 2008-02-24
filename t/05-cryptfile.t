@@ -27,7 +27,7 @@ my %invalid_details = ('Must provide a list of credentials'
 		       => { credentials => [qw(account password username)],
 			    options => { bogus => '' } },
 
-		       'Can\'t open .* for writing: No such file or directory'
+		       'Can\'t open .* for writing: .*'
 		       => { credentials => [qw(account password username)],
 			    options => { key => 'test', keyfile => '/W^%$#/@%W$S', fallback => 'Constant',
 					 fallback_options => { account => '12345678',

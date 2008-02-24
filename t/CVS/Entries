@@ -1,0 +1,13 @@
+D/pages////
+D/lib////
+/01-connection.t/1.1.1.1/Sat Feb  9 09:29:47 2008//
+/02-constant.t/1.2/Sat Feb  9 09:29:47 2008//
+/03-callback.t/1.2/Sat Feb  9 09:29:47 2008//
+/04-readline.t/1.2/Sat Feb  9 09:29:47 2008//
+/10-pod.t/1.2/Sat Feb  9 09:29:47 2008//
+/90-critic.t/1.2/Sat Feb  9 09:29:47 2008//
+/91-kwalitee.t/1.2/Sat Feb  9 09:29:47 2008//
+/06-snapshot.t/1.3/Fri Feb 22 08:12:07 2008//
+/07-statement.t/1.3/Fri Feb 22 08:13:29 2008//
+/11-pod_coverage.t/1.2/Sun Feb 24 11:06:43 2008//
+/05-cryptfile.t/1.4/Sun Feb 24 11:01:00 2008//

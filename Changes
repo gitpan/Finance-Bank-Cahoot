@@ -1,9 +1,13 @@
-0.03    19 December 2009
+0.04    24 February 2008
+        Replaced text for file not found error in 05-cryptfile.t to be
+        locale agnostic.
+
+0.03    22 February 2008
         Fixed return value of the accounts method of Finance::Bank::Cahoot
         to be a reference to a list, as documented. Added tests for system
         error pages returning from the Cahoot server for better diagnostics.
 
-0.02    19 December 2009
+0.02    19 December 2007
         Added new classs Finance::Bank::Cahoot::Statement and
         Finance::Bank::Cahoot::Statement::Entries which are now used as
         return types from the snapshot and statement methods of
@@ -11,6 +15,6 @@
 
         POD documentation has been tidied in a number of areas.
 
-0.01    16 December 2009
+0.01    16 December 2007
         Initial release
 
