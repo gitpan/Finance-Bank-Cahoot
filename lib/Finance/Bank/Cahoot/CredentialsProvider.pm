@@ -13,7 +13,7 @@ use vars qw($VERSION);
 use Carp qw(croak);
 use English '-no_match_vars';
 
-$VERSION = '0.03';
+$VERSION = '0.05';
 
 sub new
 {

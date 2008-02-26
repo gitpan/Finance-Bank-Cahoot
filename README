@@ -17,7 +17,7 @@ SYNOPSIS
                                                  username => 'dummy',
                                                  maiden => 'Smith' } );
 
-      my @accounts = $cahoot->accounts;
+      my $accounts = $cahoot->accounts;
       $cahoot->set_account($accounts->[0]->{account});
       my $snapshot = $cahoot->snapshot;
       foreach my $row (@$snapshot) {

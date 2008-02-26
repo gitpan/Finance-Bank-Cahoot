@@ -10,7 +10,7 @@ use strict;
 use warnings 'all';
 use vars qw($VERSION);
 
-$VERSION = '0.03';
+$VERSION = '0.05';
 
 use Carp qw(croak);
 use Finance::Bank::Cahoot::Statement::Entry;

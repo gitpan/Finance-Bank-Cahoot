@@ -13,7 +13,7 @@ use vars qw($VERSION $AUTOLOAD);
 
 use Carp qw(croak);
 
-$VERSION = '0.03';
+$VERSION = '0.05';
 
 sub _init
 {

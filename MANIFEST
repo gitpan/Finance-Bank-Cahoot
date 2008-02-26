@@ -21,6 +21,7 @@ t/04-readline.t
 t/05-cryptfile.t
 t/06-snapshot.t
 t/07-statement.t
+t/08-examples.t
 t/10-pod.t
 t/11-pod_coverage.t
 t/90-critic.t

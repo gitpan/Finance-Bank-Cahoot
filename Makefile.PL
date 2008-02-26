@@ -3,7 +3,7 @@ use ExtUtils::MakeMaker;
 # the contents of the Makefile that is written.
 WriteMakefile(
 	      'NAME'	     => 'Finance::Bank::Cahoot',
-	      'NO_META'      => 1,
+              'AUTHOR'       => 'Jon Connell <cpan@figsandfudge.com>',
 	      'VERSION_FROM' => 'lib/Finance/Bank/Cahoot.pm', # finds $VERSION
 	      'PREREQ_PM'    => { 'Carp' => 0,
 				  'Class::Accessor' => 0,

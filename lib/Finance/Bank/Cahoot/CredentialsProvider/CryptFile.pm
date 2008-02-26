@@ -17,7 +17,7 @@ use English '-no_match_vars';
 use File::Slurp qw(slurp);
 use IO::File;
 
-$VERSION = '0.03';
+$VERSION = '0.05';
 
 sub _init
 {
