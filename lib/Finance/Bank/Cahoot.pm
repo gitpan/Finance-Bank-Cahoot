@@ -10,7 +10,7 @@ use strict;
 use warnings 'all';
 use vars qw($VERSION @REQUIRED_SUBS);
 
-$VERSION = '0.05';
+$VERSION = '0.06';
 @REQUIRED_SUBS = qw(account place date maiden username password);
 
 use Carp qw(croak);
@@ -243,13 +243,13 @@ sub statements
   $self->{_mech}->content =~ m/name="statementPeriods"(.*?)<\/select>/gsi;
   croak 'Statement extraction parsing failed' if not defined $1;
   my $select = $1;
-  my @dates = ($select =~ m/<option value="([^"]+)">/gsi);
+  my @dates = ($select =~ m/<option value="(.+?)"/gsi);
   my @statements;
   foreach my $date (@dates) {
     $date =~ m/(\S+)\s*-\s*(\S+)/gsi;
     push @statements, { description => $date,
-			start => str2time($1.' 00:00:00 +0000 (GMT)'),
-			end => str2time($2.' 00:00:00 +0000 (GMT)')
+			 start => str2time($1.' 00:00:00 +0000 (GMT)'),
+			 end => str2time($2.' 00:00:00 +0000 (GMT)')
 		      };
   }
   $self->{_statements} = \@statements;

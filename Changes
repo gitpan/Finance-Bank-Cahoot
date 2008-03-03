@@ -1,3 +1,7 @@
+0.06    03 February 2008
+        Corrected parsing of statement lists to include the first on the
+        list.
+
 0.05    26 February 2008
         No use-visible changes. Added test for examples. Corrected META.yml.
 
