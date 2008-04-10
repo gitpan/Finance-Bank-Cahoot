@@ -8,12 +8,9 @@ package  Finance::Bank::Cahoot::CredentialsProvider;
 
 use strict;
 use warnings 'all';
-use vars qw($VERSION);
 
 use Carp qw(croak);
 use English '-no_match_vars';
-
-$VERSION = '0.06';
 
 sub new
 {

@@ -10,9 +10,6 @@ __PACKAGE__->mk_ro_accessors(qw(time date details debit credit balance)); ## no 
 
 use strict;
 use warnings 'all';
-use vars qw($VERSION);
-
-$VERSION = '0.06';
 
 use Carp qw(croak);
 use Date::Parse qw(str2time);

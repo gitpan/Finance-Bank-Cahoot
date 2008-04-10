@@ -9,15 +9,12 @@ use base qw(Finance::Bank::Cahoot::CredentialsProvider);
 
 use strict;
 use warnings 'all';
-use vars qw($VERSION);
 
 use Carp qw(croak);
 use Crypt::CBC;
 use English '-no_match_vars';
 use File::Slurp qw(slurp);
 use IO::File;
-
-$VERSION = '0.06';
 
 sub _init
 {

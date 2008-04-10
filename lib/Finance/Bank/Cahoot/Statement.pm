@@ -8,9 +8,6 @@ package Finance::Bank::Cahoot::Statement;
 
 use strict;
 use warnings 'all';
-use vars qw($VERSION);
-
-$VERSION = '0.06';
 
 use Carp qw(croak);
 use Finance::Bank::Cahoot::Statement::Entry;

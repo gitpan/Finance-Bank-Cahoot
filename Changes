@@ -1,4 +1,9 @@
-0.06    03 February 2008
+0.07    11 March 2008
+        Fixed extraction of password character numbers greater than 9.
+        Added check for incorrect login: now croaks when detected. Fixed
+        WWW::Mechanize warning (via HTML::Form) for read-only input.
+
+0.06    03 March 2008
         Corrected parsing of statement lists to include the first on the
         list.
 

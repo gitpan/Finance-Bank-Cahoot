@@ -9,12 +9,9 @@ use base qw(Finance::Bank::Cahoot::CredentialsProvider);
 
 use strict;
 use warnings 'all';
-use vars qw($VERSION $AUTOLOAD);
 
 use Carp qw(croak);
 use Term::ReadLine;
-
-$VERSION = '0.06';
 
 sub _init
 {

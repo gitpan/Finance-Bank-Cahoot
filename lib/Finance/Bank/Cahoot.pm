@@ -10,7 +10,7 @@ use strict;
 use warnings 'all';
 use vars qw($VERSION @REQUIRED_SUBS);
 
-$VERSION = '0.06';
+$VERSION = '0.07';
 @REQUIRED_SUBS = qw(account place date maiden username password);
 
 use Carp qw(croak);
@@ -100,22 +100,13 @@ sub _isa_credentials
   return 1;
 }
 
-sub _check_system_error
-{
-  my ($self) = @_;
-  croak 'General system error returned from Cahoot server.'
-    if $self->{_mech}->content =~ m{/Aquarius/web/en/GeneralSystemError.html};
-  return;
-}
-
 sub login
 {
   my ($self) = @_;
 
   return if $self->{_connected};
 
-  $self->{_mech}->get('https://ibank.cahoot.com/servlet/Aquarius/web/en/core_banking/log_in/frameset_top_log_in.html');
-  $self->_check_system_error;
+  $self->_get('https://ibank.cahoot.com/servlet/Aquarius/web/en/core_banking/log_in/frameset_top_log_in.html');
   my %fields = (inputuserid => $self->{_credentials}->username());
   foreach my $input ($self->{_mech}->find_all_inputs()) {
     my $name = $input->name();
@@ -125,12 +116,7 @@ sub login
     $fields{$name} = $self->{_credentials}->date() if $name =~ /memorabledate/i;
     $fields{$name} = $self->{_credentials}->maiden() if $name =~ /mothersmaidenname/i;
   }
-  {
-    # We submit a form, modifying hidden fields - WWW::Mechanize does not like
-    # this (see FAQ).
-    local $^W = 0; ## no critic
-    $self->{_mech}->submit_form(fields => \%fields);
-  }
+  $self->_submit_form(fields => \%fields);
 
   my %chars;
   my $label;
@@ -148,16 +134,45 @@ sub login
 				       } ],
 		    text_h        => [ sub {
 					 return if not defined $label;
-					 $_[0] =~ /select character.*(\d+)/;
+					 $_[0] =~ /select character.*?(\d+)/;
 					 $chars{$label} = $1 if defined $1;
 				       }, 'dtext' ])->parse($self->{_mech}->content());
 
-  $self->{_mech}->submit_form(fields => { passwordChar1Hidden => $self->{_credentials}->password($chars{1}),
-					  passwordChar2Hidden => $self->{_credentials}->password($chars{2}),
-					  passwordChar1 => q{*},
-					  passwordChar2 => q{*} });
+  {
+    # We submit a form, modifying hidden fields - WWW::Mechanize does not like
+    # this (see FAQ).
+    local $^W = 0; ## no critic
+    $self->_submit_form(fields => { passwordChar1Hidden => $self->{_credentials}->password($chars{1}),
+				    passwordChar2Hidden => $self->{_credentials}->password($chars{2}),
+				    passwordChar1 => q{*},
+				    passwordChar2 => q{*} });
+  }
   $self->{_connected} = 1;
   return $self;
+}
+
+sub _get
+{
+  my ($self, $url) = @_;
+  
+  $self->{_mech}->get($url);
+  croak 'Login failed'
+    if $self->{_mech}->content =~ m{We cannot recognise those details};
+  croak 'General system error returned from Cahoot server'
+    if $self->{_mech}->content =~ m{/Aquarius/web/en/GeneralSystemError.html};
+  return;
+}
+
+sub _submit_form
+{
+  my ($self, @args) = @_;
+  
+  $self->{_mech}->submit_form(@args);
+  croak 'Login failed'
+    if $self->{_mech}->content =~ m{We cannot recognise those details};
+  croak 'General system error returned from Cahoot server'
+    if $self->{_mech}->content =~ m{/Aquarius/web/en/GeneralSystemError.html};
+  return;
 }
 
 sub _get_frames
@@ -165,8 +180,7 @@ sub _get_frames
   my ($self) = @_;
 
   foreach my $link ($self->{_mech}->find_all_links(tag => 'frame')) {
-    $self->{_mech}->get($link->url());
-    $self->_check_system_error;
+    $self->_get($link->url());
   }
   return;
 }
@@ -206,8 +220,7 @@ sub set_account
   $self->login();
   $self->{_accounts} = $self->accounts if not defined $self->{_accounts};
 
-  $self->{_mech}->get('/servlet/com.aquarius.accounts.servlet.PersonalHomepageSelectionServlet?productType=MTA&productId=00'.$account.'&origin=init');
-  $self->_check_system_error;
+  $self->_get('/servlet/com.aquarius.accounts.servlet.PersonalHomepageSelectionServlet?productType=MTA&productId=00'.$account.'&origin=init');
   $self->_get_frames();
   $self->{_current_account} = $account;
   delete $self->{_statements} if defined $self->{_statements};
@@ -222,8 +235,7 @@ sub statement
   $self->set_account($account) if defined $account;
   croak 'No account currently selected' if not defined $self->{_current_account};
 
-  $self->{_mech}->get('/servlet/com.aquarius.accounts.servlet.CurrentAccountStatementEntryServlet?print=yes');
-  $self->_check_system_error;
+  $self->_get('/servlet/com.aquarius.accounts.servlet.CurrentAccountStatementEntryServlet?print=yes');
   my $te = HTML::TableExtract->new(headers => [qw(Date Transaction Withdrawn Paid Balance)]);
   $te->parse($self->{_mech}->content);
   my @table = $te->first_table_found->rows;
@@ -238,8 +250,7 @@ sub statements
   $self->set_account($account) if defined $account;
   croak 'No account currently selected' if not defined $self->{_current_account};
 
-  $self->{_mech}->get('/servlet/com.aquarius.accounts.servlet.CurrentAccountStatementEntryServlet');
-  $self->_check_system_error;
+  $self->_get('/servlet/com.aquarius.accounts.servlet.CurrentAccountStatementEntryServlet');
   $self->{_mech}->content =~ m/name="statementPeriods"(.*?)<\/select>/gsi;
   croak 'Statement extraction parsing failed' if not defined $1;
   my $select = $1;
@@ -271,10 +282,9 @@ sub set_statement
     }
     croak 'Invalid statement: '.$statement;
   }
-  $self->{_mech}->get('/servlet/com.aquarius.accounts.servlet.CurrentAccountStatementEntryServlet');
-  $self->_check_system_error;
+  $self->_get('/servlet/com.aquarius.accounts.servlet.CurrentAccountStatementEntryServlet');
   $self->{_mech}->select('statementPeriods', $statement);
-  $self->{_mech}->submit_form();
+  $self->_submit_form();
   return $self;
 }
 
@@ -286,8 +296,7 @@ sub snapshot
   $self->set_account($account) if defined $account;
   croak 'No account currently selected' if not defined $self->{_current_account};
 
-  $self->{_mech}->get('/servlet/com.aquarius.accounts.servlet.CurrentAccountStatusServlet?origin=print');
-  $self->_check_system_error;
+  $self->_get('/servlet/com.aquarius.accounts.servlet.CurrentAccountStatusServlet?origin=print');
   my $te = HTML::TableExtract->new(headers => [qw(Date Type Withdrawn Paid)]);
   $te->parse($self->{_mech}->content);
   my @table = $te->first_table_found->rows;
@@ -298,8 +307,7 @@ sub accounts
 {
   my ($self) = @_;
   $self->login();
-  $self->{_mech}->get('/Aquarius/web/en/core_banking/personal_homepage/frameset_personal_homepage.html');
-  $self->_check_system_error;
+  $self->_get('/Aquarius/web/en/core_banking/personal_homepage/frameset_personal_homepage.html');
   $self->_get_frames;
   my $content = $self->{_mech}->content();
   my @account_ids = ($content =~ m/PersonalHomepageSelectionServlet.*?productId=(\d+)/gsi);
