@@ -9,6 +9,9 @@ use base qw(Finance::Bank::Cahoot::CredentialsProvider);
 
 use strict;
 use warnings 'all';
+use vars qw($VERSION);
+
+$VERSION = '1.00';
 
 use Carp qw(croak);
 

@@ -1,3 +1,8 @@
+1.00    15 April 2008
+        Bumping version number since the module has now successfully
+        connected to 3 independent Cahoot accounts, so seems to be
+        stabilising.
+
 0.07    11 March 2008
         Fixed extraction of password character numbers greater than 9.
         Added check for incorrect login: now croaks when detected. Fixed
