@@ -10,11 +10,11 @@ use strict;
 use warnings 'all';
 use vars qw($VERSION @REQUIRED_SUBS);
 
-$VERSION = '1.00';
+$VERSION = '1.01';
 @REQUIRED_SUBS = qw(account place date maiden username password);
 
 use Carp qw(croak);
-use Date::Parse qw(str2time);
+use Time::Local qw(timegm);
 use English '-no_match_vars';
 use HTML::TableExtract;
 use WWW::Mechanize;
@@ -242,6 +242,13 @@ sub statement
   return Finance::Bank::Cahoot::Statement->new(_trim_table \@table);
 }
 
+# convert a date of the form DD/MM/YY (assuming YY is in the 21st century) into a timestamp
+sub _date2time
+{
+  my ($d, $m, $y) = split /\D+/, shift;
+  timegm 0, 0, 0, $d, $m-1, $y+100;
+}
+
 sub statements
 {
   my ($self, $account) = @_;
@@ -259,8 +266,8 @@ sub statements
   foreach my $date (@dates) {
     $date =~ m/(\S+)\s*-\s*(\S+)/gsi;
     push @statements, { description => $date,
-			 start => str2time($1.' 00:00:00 +0000 (GMT)'),
-			 end => str2time($2.' 00:00:00 +0000 (GMT)')
+			 start => _date2time($1),
+			 end => _date2time($2)
 		      };
   }
   $self->{_statements} = \@statements;

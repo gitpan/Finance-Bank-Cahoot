@@ -1,3 +1,9 @@
+1.01    16 August 2008
+        Replaced use of Date::Parse in statement line extraction as it
+        often gets confused by US vs. American date formats. Replaced
+        by a conversion that assumes DD/MM/YY dates (safe since this
+        is a UK bank after all).
+
 1.00    15 April 2008
         Bumping version number since the module has now successfully
         connected to 3 independent Cahoot accounts, so seems to be
