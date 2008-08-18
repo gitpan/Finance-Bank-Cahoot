@@ -12,7 +12,7 @@ use strict;
 use warnings 'all';
 use vars qw($VERSION);
 
-$VERSION = '1.01';
+$VERSION = '1.02';
 
 use Carp qw(croak);
 use Date::Parse qw(str2time);

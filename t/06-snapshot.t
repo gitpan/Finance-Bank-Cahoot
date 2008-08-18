@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 use lib 't/lib';
-use Test::More tests => 14;
+use Test::More tests => 15;
 use Test::Exception;
 use Test::Deep;
 
@@ -41,7 +41,7 @@ use_ok('Finance::Bank::Cahoot::CredentialsProvider::Constant');
 
   {
     my $statement = $c->snapshot();
-    isa($statement, 'Finance::Bank::Cahoot::Statement', 'got a statement');
+    isa_ok($statement, 'Finance::Bank::Cahoot::Statement');
     my $row = $statement->rows->[0];
     foreach my $method (qw(time date details debit credit balance)) {
       can_ok($row, $method);

@@ -2,7 +2,7 @@
 
 use strict;
 use lib 't/lib';
-use Test::More tests => 36;
+use Test::More tests => 38;
 use Test::Exception;
 use Test::Deep;
 
@@ -76,7 +76,7 @@ use_ok('Finance::Bank::Cahoot::CredentialsProvider::Constant');
 
   {
     my $statement = $c->statement();
-    isa($statement, 'Finance::Bank::Cahoot::Statement', 'got a statement');
+    isa_ok($statement, 'Finance::Bank::Cahoot::Statement');
     my $row = $statement->rows->[0];
     foreach my $method (qw(time date details debit credit balance)) {
       can_ok($row, $method);
@@ -213,7 +213,7 @@ use_ok('Finance::Bank::Cahoot::CredentialsProvider::Constant');
      'selected 4th statement in list');
 
   my $statement = $c->statement();
-  isa($statement, 'Finance::Bank::Cahoot::Statement', 'got a statement');
+  isa_ok($statement, 'Finance::Bank::Cahoot::Statement');
   cmp_deeply($statement->rows,
              [ methods(balance => '672.19',
 		       debit => '13.02',

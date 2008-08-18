@@ -10,7 +10,7 @@ use strict;
 use warnings 'all';
 use vars qw($VERSION @REQUIRED_SUBS);
 
-$VERSION = '1.01';
+$VERSION = '1.02';
 @REQUIRED_SUBS = qw(account place date maiden username password);
 
 use Carp qw(croak);
