@@ -1,4 +1,5 @@
 Changes
+examples/debits
 examples/snapshot
 examples/statement
 lib/Finance/Bank/Cahoot.pm
@@ -7,6 +8,7 @@ lib/Finance/Bank/Cahoot/CredentialsProvider/Callback.pm
 lib/Finance/Bank/Cahoot/CredentialsProvider/Constant.pm
 lib/Finance/Bank/Cahoot/CredentialsProvider/CryptFile.pm
 lib/Finance/Bank/Cahoot/CredentialsProvider/ReadLine.pm
+lib/Finance/Bank/Cahoot/DirectDebit.pm
 lib/Finance/Bank/Cahoot/Statement.pm
 lib/Finance/Bank/Cahoot/Statement/Entry.pm
 Makefile.PL
@@ -24,6 +26,7 @@ t/07-statement.t
 t/08-examples.t
 t/10-pod.t
 t/11-pod_coverage.t
+t/12-directdebit.t
 t/90-critic.t
 t/91-kwalitee.t
 t/lib/Mock/CahootWebServer.pm
@@ -37,10 +40,14 @@ t/pages/com.aquarius.accounts.servlet.CurrentAccountStatusServlet?productType=MT
 t/pages/com.aquarius.accounts.servlet.PersonalHomepageSelectionServlet?productType=MTA&productId=0012345678&origin=init
 t/pages/com.aquarius.accounts.servlet.PersonalHomepageSelectionServlet?productType=MTA&productId=0087654321&origin=init
 t/pages/com.aquarius.homePage.servlet.ViewHomePageServlet
+t/pages/com.aquarius.orders.servlet.DirectDebitListEntryServlet
+t/pages/com.aquarius.orders.servlet.DirectDebitListServlet?origin=forward
 t/pages/com.aquarius.ps.servlet.NavigationServlet
 t/pages/com.aquarius.security.authentication.servlet.LogonServlet
 t/pages/com.aquarius.security.authentication.servlet.PartialPasswordServlet
 t/pages/frameset_personal_homepage.html
 t/pages/frameset_top_log_in.html
+t/pages/frameset_view_direct_debits.html
 t/pages/nav_account_status.html
+t/pages/nav_direct_debit.html
 t/pages/nav_personal_homepage.html

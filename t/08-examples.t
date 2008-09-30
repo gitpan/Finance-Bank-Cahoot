@@ -5,7 +5,7 @@ use warnings;
 
 use Config;
 use lib 't/lib';
-use Test::More tests => 2;
+use Test::More tests => 3;
 
 use Mock::CahootWebServer;
 my $cs = new Mock::CahootWebServer;
@@ -60,3 +60,24 @@ ok($PrintToString::result
       '22 Oct 2007,SERVICE CHARGE DEBIT,0,1.40,555.16'."\n".
       '31 Oct 2007,BIGGINS IT CONSULTANTS,1827.26,0,2382.42'."\n",
    'statement example');
+
+foreach (qw(place date maiden account username password)) {
+  no strict 'refs';
+  undef *{"Finance::Bank::Cahoot::CredentialsProvider::ReadLine::$_"};
+}
+
+$old_fh = select PrintToString->new;
+do 'examples/debits';
+select $old_fh;
+ok($PrintToString::result
+   eq 'ACME WATER CO,07028928282,20.14,01-Sep-2008,Every 0'."\n".
+      'HAPPYSHIRE COUNCIL,282726272,200.00,15-Sep-2008,Every 0'."\n".
+      'TV LICENCE,06904826736,11.95,01-Sep-2008,Every 0'."\n".
+      'LOOPY CAR INSURE,9762041,282.00,01-Apr-2008,Every 0'."\n".
+      'LECCO GAS CO,337710,17.00,01-Aug-2008,Every 0'."\n".
+      'BONGO.COM SUBSCRIPTION,7227REFVD,22.00,01-Sep-2008,Every 0'."\n".
+      'LINUX FOOBARS MAGAZINE,SCAMMING101,37.00,03-Dec-2007,Every 0'."\n".
+      'ROBBERS HOUSE INSURANCE,29272635647262,2827.13,01-Mar-2008,Every 0'."\n".
+      'NORWICH UNION,28272718HDUYST,10.99,01-Sep-2008,Every 0'."\n".
+      'ACME DIRECT DEBITS,2928272762,117.28,23-Sep-2008,Every 0'."\n",
+   'debits example');

@@ -1,12 +1,12 @@
-# Copyright (c) 2007 Jon Connell.
+# Copyright (c) 2008 Jon Connell.
 # All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the same terms as Perl itself.
 
-package Finance::Bank::Cahoot::Statement::Entry;
+package Finance::Bank::Cahoot::DirectDebit;
 use base qw(Class::Accessor);
-__PACKAGE__->mk_ro_accessors(qw(time date details debit credit balance)); ## no critic
+__PACKAGE__->mk_ro_accessors(qw(payee reference amount date frequency)); ## no critic
 
 use strict;
 use warnings 'all';
@@ -15,7 +15,6 @@ use vars qw($VERSION);
 $VERSION = '1.03';
 
 use Carp qw(croak);
-use Date::Parse qw(str2time);
 
 sub new
 {
@@ -26,13 +25,11 @@ sub new
   croak 'row data is not an array ref'
     if ref $row ne 'ARRAY';
 
-  my $self = { time    => str2time($row->[0].' 00:00:00 +0000 (GMT)'),
-	       date    => _trim($row->[0]),
-	       details => _trim($row->[1]),
-	       debit   => _trim($row->[2]),    ## no critic (ProhibitMagicNumbers)
-	       credit  => _trim($row->[3]) };  ## no critic (ProhibitMagicNumbers)
-  # Balance may be undef (avoid 'Odd number of elements in anonymous hash')
-  $self->{balance} = _trim($row->[4]);
+  my $self = { payee     => _trim($row->[0]),
+               reference => _trim($row->[1]),
+               amount    => _trim($row->[2]),
+               date      => _trim($row->[3]),     ## no critic (ProhibitMagicNumbers)
+               frequency => _trim($row->[4]) };   ## no critic (ProhibitMagicNumbers)
   bless $self, $class;
 
   return $self;
@@ -57,7 +54,7 @@ __END__
 
 =head1 NAME
 
-Finance::Bank::Cahoot::Statement::Entry - Cahoot statement transaction object
+Finance::Bank::Cahoot::DirectDebit - Cahoot direct debit record
 
 =head1 DESCRIPTION
 
@@ -69,12 +66,12 @@ contained in a single statement transaction.
   my $cahoot = Finance::Bank::Cahoot->new(credentials => 'ReadLine');
   my @accounts = $cahoot->accounts;
   $cahoot->set_account($accounts->[0]->{account});
-  my $snapshot = $cahoot->snapshot;
-  foreach my $transaction (@$snapshot) {
-    print $transaction->date, q{,},
-          $transaction->details, q{,},
-          $transaction->credit || 0, q{,},
-          $transaction->debit || 0, qq{\n};
+  my $debits = $cahoot->debits;
+  foreach my $debit (@$debits) {
+    print $debit->payee, q{,},
+          $debit->reference, q{,},
+          $debit->amount || 0, q{,},
+          $debit->date || 0, qq{\n};
   }
 
 =head1 METHODS
@@ -83,33 +80,29 @@ contained in a single statement transaction.
 
 =item B<new>
 
-Create a new instance of a a Cahoot statement. It is unlikely that the
-C<new> method should need to be called by anything other than
+Create a new instance of a a Cahoot direct debit entry. It is unlikely that
+the C<new> method should need to be called by anything other than
 C<Finance::Bank::Cahoot>.
+
+=item B<payee>
+
+Returns the name of the recipients of the direct debit.
+
+=item B<reference>
+
+Returns the direct debit reference supplied to the payee.
+
+=item B<amount>
+
+Returns the amount of the last successful direct debit.
 
 =item B<date>
 
-Returns the date of the transaction as a text string in the form C<DD/MM/YYYY>.
+Returns the date of the last successful direct debit.
 
-=item B<time>
+=item B<frequency>
 
-Returns the time of the transaction as returned by the C<time> function.
-
-=item B<balance>
-
-Returns the balance of the account following the transaction (where available).
-
-=item B<debit>
-
-Returns the amount of the transaction if it is a debit.
-
-=item B<credit>
-
-Returns the amount of the transaction if it is a credit.
-
-=item B<details>
-
-Returns the text description of the transaction.
+Returns the frequency of the direct debit. This appears to always be 'Every 0'.
 
 =back
 
@@ -135,7 +128,7 @@ Jon Connell <jon@figsandfudge.com>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2007 by Jon Connell
+Copyright 2008 by Jon Connell
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

@@ -6,3 +6,4 @@ MANIFEST.bak$
 \.DS_Store
 CVS
 .cvsignore
+Debian_CPANTS.txt

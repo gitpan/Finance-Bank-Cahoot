@@ -1,4 +1,4 @@
-# Copyright (c) 2007 Jon Connell.
+# Copyright (c) 2008 Jon Connell.
 # All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or
@@ -10,16 +10,18 @@ use strict;
 use warnings 'all';
 use vars qw($VERSION @REQUIRED_SUBS);
 
-$VERSION = '1.02';
+$VERSION = '1.03';
 @REQUIRED_SUBS = qw(account place date maiden username password);
 
 use Carp qw(croak);
 use Time::Local qw(timegm);
+use Encode;
 use English '-no_match_vars';
 use HTML::TableExtract;
 use WWW::Mechanize;
 
 use Finance::Bank::Cahoot::Statement;
+use Finance::Bank::Cahoot::DirectDebit;
 
 sub new
 {
@@ -151,15 +153,23 @@ sub login
   return $self;
 }
 
+sub _test_content_for_error
+{
+  my ($self) = @_;
+  
+  croak 'Login failed'
+    if $self->{_mech}->content =~ m{We cannot recognise those details};
+  croak 'General system error returned from Cahoot server'
+    if $self->{_mech}->content =~ m{/Aquarius/web/en/GeneralSystemError.html};
+    return;
+}
+
 sub _get
 {
   my ($self, $url) = @_;
   
   $self->{_mech}->get($url);
-  croak 'Login failed'
-    if $self->{_mech}->content =~ m{We cannot recognise those details};
-  croak 'General system error returned from Cahoot server'
-    if $self->{_mech}->content =~ m{/Aquarius/web/en/GeneralSystemError.html};
+  $self->_test_content_for_error;
   return;
 }
 
@@ -168,10 +178,7 @@ sub _submit_form
   my ($self, @args) = @_;
   
   $self->{_mech}->submit_form(@args);
-  croak 'Login failed'
-    if $self->{_mech}->content =~ m{We cannot recognise those details};
-  croak 'General system error returned from Cahoot server'
-    if $self->{_mech}->content =~ m{/Aquarius/web/en/GeneralSystemError.html};
+  $self->_test_content_for_error;
   return;
 }
 
@@ -246,7 +253,7 @@ sub statement
 sub _date2time
 {
   my ($d, $m, $y) = split /\D+/, shift;
-  timegm 0, 0, 0, $d, $m-1, $y+100;
+  return timegm 0, 0, 0, $d, $m-1, $y+100;   ## no critic (ProhibitMagicNumbers)
 }
 
 sub statements
@@ -266,8 +273,8 @@ sub statements
   foreach my $date (@dates) {
     $date =~ m/(\S+)\s*-\s*(\S+)/gsi;
     push @statements, { description => $date,
-			 start => _date2time($1),
-			 end => _date2time($2)
+			start => _date2time($1),
+			end => _date2time($2)
 		      };
   }
   $self->{_statements} = \@statements;
@@ -293,6 +300,44 @@ sub set_statement
   $self->{_mech}->select('statementPeriods', $statement);
   $self->_submit_form();
   return $self;
+}
+
+sub debits
+{
+  my ($self, $account) = @_;
+
+  $self->login();
+  $self->set_account($account) if defined $account;
+  croak 'No account currently selected' if not defined $self->{_current_account};
+
+  $self->_get('https://ibank.cahoot.com/Aquarius/web/en/core_banking/current_account/direct_debits/frameset_view_direct_debits.html');
+  $self->_get_frames();
+  $self->_get('/servlet/com.aquarius.orders.servlet.DirectDebitListEntryServlet');
+
+  my $te = HTML::TableExtract->new(headers => ['Payable to', 'Reference is', 'Last payment amount',
+                                               'Last payment date', 'Frequency']);
+  $te->parse(decode_utf8 $self->{_mech}->content);
+  my $table = _trim_table([$te->first_table_found->rows]);
+  my @debits;
+  foreach my $row (@{$table}) {
+    # Direct debit lists contain GBP symbols (unlike statements)
+    $row->[2] =~ s/[^0-9\.]//g;       ## no critic (ProhibitMagicNumbers)
+    push @debits, Finance::Bank::Cahoot::DirectDebit->new($row);
+  }
+  while ($self->{_mech}->content =~ /origin=forward/) {
+    $self->{_mech}->follow_link(url_regex => qr/origin=forward/);
+    $self->_test_content_for_error;
+    my $te = HTML::TableExtract->new(headers => ['Payable to', 'Reference is', 'Last payment amount',
+                                                 'Last payment date', 'Frequency']);
+    $te->parse(decode_utf8 $self->{_mech}->content);
+    my $table = _trim_table([$te->first_table_found->rows]);
+    foreach my $row (@{$table}) {
+      # Direct debit lists contain GBP symbols (unlike statements)
+      $row->[2] =~ s/[^0-9\.]//g;       ## no critic (ProhibitMagicNumbers)
+      push @debits, Finance::Bank::Cahoot::DirectDebit->new($row);
+    }
+  }
+  return \@debits;
 }
 
 sub snapshot
@@ -327,7 +372,7 @@ sub accounts
     next if defined $seen{$account_ids[$idx]};
     $seen{$account_ids[$idx]}++;
     push @accounts, { name => _trim($account_names[$idx]),
-		      account => substr($account_ids[$idx], -8),
+		      account => substr($account_ids[$idx], -8),   ## no critic (ProhibitMagicNumbers)
 		      balance => shift @balance,
 		      available => shift @available };
   }
@@ -458,7 +503,6 @@ that account.
 If no account has been selected and no account is supplied by the caller,
 C<statements> will C<croak>.
 
-
 Each item in the returned list is a hash reference that holds summary information
 for a single statement, and contains this data:
 
@@ -484,6 +528,25 @@ by the caller, C<statement> will C<croak>.
   my $statements = $cahoot->statements;
   $cahoot->set_statement($statements->[0]->{description});
 
+=item B<debits>
+
+Return a list of direct debits currently active on the account. An optional
+account parameter may be supplied as an 8-digit account number. If no account
+has previously been selected or no account number is supplied, C<debits> will
+C<croak>. The return value is a reference to a list of
+C<Finance::Bank::Cahoot::DirectDebit> objects. Each entry in the list is a
+single direct debit.
+
+  $cahoot->set_account('12345678');
+  my $debits = $cahoot->debits;
+  foreach my $debit (@$debits) {
+    print $debit->payee, q{,},
+          $debit->reference, q{,},
+          $debit->amount || 0, q{,},
+          $debit->date || 0, q{,},
+          $debit->frequency || 0, qq{\n};
+  }
+
 =item B<snapshot>
 
 Return a table of transactions from the account snapshot. An optional account
@@ -505,15 +568,18 @@ amount paid in.
 Return a table of transactions from a selected statement. An optional account
 parameter may be supplied as an 8-digit account number. If no account has
 previously been selected or no account number is supplied, C<statement>
-will C<croak>. The return value is a reference to a list of list references.
-Each entry in the top-level list is a row in the statement and the rows
-are data from the account in the order date, description, amount withdrawn,
-amount paid in, balance.
+will C<croak>. The return value is a reference to a list of
+C<Finance::Bank::Cahoot::Statement::Entry> objects. Each entry in list is a
+row in the statement.
 
   $cahoot->set_account('12345678');
-  my $snapshot = $cahoot->statement;
-  foreach my $row (@$statement) {
-    print join ',', @$row; print "\n";
+  my $statement = $cahoot->statement;
+  foreach my $transaction (@$statement) {
+    print $transaction->date, q{,},
+          $transaction->details, q{,},
+          $transaction->credit || 0, q{,},
+          $transaction->debit || 0, q{,},
+          $transaction->balance || 0, qq{\n};
   }
 
 =back
@@ -542,7 +608,7 @@ Jon Connell <jon@figsandfudge.com>
 
 This module borrows heavily from Finance::Bank::Natwest by Jody Belka.
 
-Copyright 2007 by Jon Connell
+Copyright 2008 by Jon Connell
 Copyright 2003 by Jody Belka
 
 This library is free software; you can redistribute it and/or modify

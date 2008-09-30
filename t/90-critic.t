@@ -20,7 +20,7 @@ if ($@) {
 
 Test::Perl::Critic->import(-severity => 'brutal',
 			   -exclude => [qw (RequireRcsKeywords RequireTidyCode RequirePodSections
-					    ProhibitPostfixControls ExtendedFormatting
+					    ProhibitPostfixControls ExtendedFormatting 
 					    LineBoundaryMatching ProhibitCaptureWithoutTest)]);
 
 all_critic_ok();

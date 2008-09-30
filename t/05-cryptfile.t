@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 30;
+use Test::More tests => 32;
 use Test::Exception;
 use Test::MockObject;
 use Carp;
@@ -33,6 +33,9 @@ my %invalid_details = ('Must provide a list of credentials'
 					 fallback_options => { account => '12345678',
 							       username => 'acmeuser',
 							       password => 'secret' } } },
+		       'Can\'t open .* for reading: .*'
+		       => { credentials => [qw(account password username)],
+			    options => { key => 'test', keyfile => 'temp_keyfile' } },
 
 		       'Invalid fallback provider bogus (1)'
 		       => { credentials => [qw(account password username)],
@@ -53,7 +56,12 @@ my %invalid_details = ('Must provide a list of credentials'
 		      );
 
 while (my ($message, $credentials) = each %invalid_details) {
-  unlink 'temp_keyfile';
+  if ($message =~ /open.*reading/) {
+    new IO::File $credentials->{options}->{keyfile}, 'w';
+    chmod 000, $credentials->{options}->{keyfile};
+  } else {
+    unlink 'temp_keyfile';
+  }
   dies_ok {
     local $^W = 0;  ## supress UNIVERSAL::can warning from Crypt::CBC
     my $provider =

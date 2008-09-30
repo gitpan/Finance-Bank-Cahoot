@@ -73,6 +73,19 @@ sub new{
 		} 
 		 return @links;
 	       });
+   $self->mock('follow_link',
+               sub {
+                 my ($self, %opts) = @_;
+                 if (defined $opts{url_regex}) {
+                   foreach my $link ($self->find_all_links(tag => 'a')) {
+                     if ($link->url =~ $opts{url_regex}) {
+                       $self->get($link->url);
+                     }
+                   }
+                 } else {
+                   carp "Only test_regex mocked for folow_link";
+                 }
+               });
    $self->mock('content', sub { return $self->{content}->{$self->{current_url}}; });
    $self->mock('submit_form',
 	       sub {

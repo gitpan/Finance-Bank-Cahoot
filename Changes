@@ -1,3 +1,7 @@
+1.03    30 September 2008
+        New debits() method for Finance::Bank::Cahoot that returns a
+        list of active direct debits.
+
 1.02    18 August 2008
         No functional changes to modules. Fixed invocation of isa() in
         tests to isa_ok() to resolve module @INC ordering issue.
@@ -6,7 +10,7 @@
         Replaced use of Date::Parse in statement line extraction as it
         often gets confused by US vs. American date formats. Replaced
         by a conversion that assumes DD/MM/YY dates (safe since this
-        is a UK bank after all).
+        is a UK bank after all) supplied by Nick Woolley.
 
 1.00    15 April 2008
         Bumping version number since the module has now successfully
