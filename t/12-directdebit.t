@@ -6,8 +6,8 @@ use Test::More tests => 9;
 use Test::Exception;
 use Test::Deep;
 
-use Mock::CahootWebServer;
-my $cs = new Mock::CahootWebServer;
+use Mock::WWW::Mechanize;
+my $cs = Mock::WWW::Mechanize->new('t/pages');
 
 use_ok('Finance::Bank::Cahoot');
 use_ok('Finance::Bank::Cahoot::CredentialsProvider::Constant');

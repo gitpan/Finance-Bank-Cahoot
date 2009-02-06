@@ -7,8 +7,8 @@ use Config;
 use lib 't/lib';
 use Test::More tests => 3;
 
-use Mock::CahootWebServer;
-my $cs = new Mock::CahootWebServer;
+use Mock::WWW::Mechanize;
+my $cs = Mock::WWW::Mechanize->new('t/pages');
 
 my $term = new Test::MockObject;
 $term->fake_module('Term::ReadLine');

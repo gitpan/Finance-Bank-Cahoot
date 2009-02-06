@@ -8,8 +8,8 @@ use Carp;
 use Test::More tests => 31;
 use Test::Exception;
 
-use Mock::CahootWebServer;
-my $cs = new Mock::CahootWebServer;
+use Mock::WWW::Mechanize;
+my $cs = Mock::WWW::Mechanize->new('t/pages');
 
 use_ok( 'Finance::Bank::Cahoot' );
 

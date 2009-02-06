@@ -1,3 +1,6 @@
+1.04    06 February 2009
+        Compressed test pages after Google flagged them as a phishing scam.
+
 1.03    30 September 2008
         New debits() method for Finance::Bank::Cahoot that returns a
         list of active direct debits.

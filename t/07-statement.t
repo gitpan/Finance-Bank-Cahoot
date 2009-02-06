@@ -6,8 +6,9 @@ use Test::More tests => 38;
 use Test::Exception;
 use Test::Deep;
 
-use Mock::CahootWebServer;
-my $cs = new Mock::CahootWebServer;
+use Mock::WWW::Mechanize;
+my $cs = Mock::WWW::Mechanize->new('t/pages');
+$cs->mock('get', sub { print STDERR "In mocked get()\n"; return WWW::Mechanize::get(@_)});
 
 use_ok('Finance::Bank::Cahoot');
 use_ok('Finance::Bank::Cahoot::Statement');
