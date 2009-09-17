@@ -6,13 +6,13 @@
 
 package Finance::Bank::Cahoot::DirectDebit;
 use base qw(Class::Accessor);
-__PACKAGE__->mk_ro_accessors(qw(payee reference amount date frequency)); ## no critic
+__PACKAGE__->mk_ro_accessors(qw(payee reference)); ## no critic
 
 use strict;
 use warnings 'all';
 use vars qw($VERSION);
 
-$VERSION = '1.04';
+$VERSION = '1.05';
 
 use Carp qw(croak);
 
@@ -26,10 +26,7 @@ sub new
     if ref $row ne 'ARRAY';
 
   my $self = { payee     => _trim($row->[0]),
-               reference => _trim($row->[1]),
-               amount    => _trim($row->[2]),
-               date      => _trim($row->[3]),     ## no critic (ProhibitMagicNumbers)
-               frequency => _trim($row->[4]) };   ## no critic (ProhibitMagicNumbers)
+               reference => _trim($row->[1]) };
   bless $self, $class;
 
   return $self;
@@ -69,9 +66,7 @@ contained in a single statement transaction.
   my $debits = $cahoot->debits;
   foreach my $debit (@$debits) {
     print $debit->payee, q{,},
-          $debit->reference, q{,},
-          $debit->amount || 0, q{,},
-          $debit->date || 0, qq{\n};
+          $debit->reference || 0, qq{\n};
   }
 
 =head1 METHODS
@@ -91,18 +86,6 @@ Returns the name of the recipients of the direct debit.
 =item B<reference>
 
 Returns the direct debit reference supplied to the payee.
-
-=item B<amount>
-
-Returns the amount of the last successful direct debit.
-
-=item B<date>
-
-Returns the date of the last successful direct debit.
-
-=item B<frequency>
-
-Returns the frequency of the direct debit. This appears to always be 'Every 0'.
 
 =back
 

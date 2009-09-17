@@ -1,3 +1,7 @@
+1.05    17 September 2009
+        Updated Finance::Bank::Cahoot::DirectDebit to cope with new Cahoot
+        direct debit page format.
+
 1.04    06 February 2009
         Compressed test pages after Google flagged them as a phishing scam.
 

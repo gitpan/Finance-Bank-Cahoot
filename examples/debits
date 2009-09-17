@@ -20,8 +20,5 @@ foreach my $account (@$accounts) {
 my $debits = $cahoot->debits;
 foreach my $debit (@$debits) {
   print $debit->payee, q{,},
-        $debit->reference, q{,},
-        $debit->amount || 0, q{,},
-        $debit->date || 0, q{,},
-        $debit->frequency || 0, qq{\n};
+        $debit->reference || 0, qq{\n};
 }

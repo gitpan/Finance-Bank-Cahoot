@@ -10,7 +10,7 @@ use strict;
 use warnings 'all';
 use vars qw($VERSION @REQUIRED_SUBS);
 
-$VERSION = '1.04';
+$VERSION = '1.05';
 @REQUIRED_SUBS = qw(account place date maiden username password);
 
 use Carp qw(croak);
@@ -327,8 +327,7 @@ sub debits
   while ($self->{_mech}->content =~ /origin=forward/) {
     $self->{_mech}->follow_link(url_regex => qr/origin=forward/);
     $self->_test_content_for_error;
-    my $te = HTML::TableExtract->new(headers => ['Payable to', 'Reference is', 'Last payment amount',
-                                                 'Last payment date', 'Frequency']);
+    my $te = HTML::TableExtract->new(headers => ['Payable to', 'Reference is', 'Options']);
     $te->parse(decode_utf8 $self->{_mech}->content);
     my $table = _trim_table([$te->first_table_found->rows]);
     foreach my $row (@{$table}) {
