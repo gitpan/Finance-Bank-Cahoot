@@ -11,7 +11,7 @@ use strict;
 use warnings 'all';
 use vars qw($VERSION);
 
-$VERSION = '1.05';
+$VERSION = '1.06';
 
 use Carp qw(croak);
 use Crypt::CBC;

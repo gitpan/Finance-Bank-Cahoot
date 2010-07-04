@@ -10,7 +10,7 @@ use strict;
 use warnings 'all';
 use vars qw($VERSION @REQUIRED_SUBS);
 
-$VERSION = '1.05';
+$VERSION = '1.06';
 @REQUIRED_SUBS = qw(account place date maiden username password);
 
 use Carp qw(croak);
@@ -108,15 +108,16 @@ sub login
 
   return if $self->{_connected};
 
-  $self->_get('https://ibank.cahoot.com/servlet/Aquarius/web/en/core_banking/log_in/frameset_top_log_in.html');
+  $self->_get('https://securebank.cahoot.com/servlet/Aquarius/web/en/core_banking/log_in/frameset_top_log_in.html');
   my %fields = (inputuserid => $self->{_credentials}->username());
+  my $content = $self->{_mech}->content;
   foreach my $input ($self->{_mech}->find_all_inputs()) {
-    my $name = $input->name();
-    next if not defined $name;
-    next if defined $fields{$name};
-    $fields{$name} = $self->{_credentials}->place() if $name =~ /memorableaddress/i;
-    $fields{$name} = $self->{_credentials}->date() if $name =~ /memorabledate/i;
-    $fields{$name} = $self->{_credentials}->maiden() if $name =~ /mothersmaidenname/i;
+     my $name = $input->name();
+     next if not defined $name;
+     next if defined $fields{$name};
+     $fields{$name} = $self->{_credentials}->place() if $content =~ /address or place:/i;
+     $fields{$name} = $self->{_credentials}->date() if $content =~ /memorable year:/i;
+     $fields{$name} = $self->{_credentials}->maiden() if $content =~ /maiden name:/i;
   }
   $self->_submit_form(fields => \%fields);
 
@@ -310,29 +311,24 @@ sub debits
   $self->set_account($account) if defined $account;
   croak 'No account currently selected' if not defined $self->{_current_account};
 
-  $self->_get('https://ibank.cahoot.com/Aquarius/web/en/core_banking/current_account/direct_debits/frameset_view_direct_debits.html');
+  $self->_get('https://securebank.cahoot.com/Aquarius/web/en/core_banking/current_account/direct_debits/frameset_view_direct_debits.html');
   $self->_get_frames();
   $self->_get('/servlet/com.aquarius.orders.servlet.DirectDebitListEntryServlet');
 
-  my $te = HTML::TableExtract->new(headers => ['Payable to', 'Reference is', 'Last payment amount',
-                                               'Last payment date', 'Frequency']);
+  my $te = HTML::TableExtract->new(headers => ['Payable to', 'Reference is']);
   $te->parse(decode_utf8 $self->{_mech}->content);
   my $table = _trim_table([$te->first_table_found->rows]);
   my @debits;
   foreach my $row (@{$table}) {
-    # Direct debit lists contain GBP symbols (unlike statements)
-    $row->[2] =~ s/[^0-9\.]//g;       ## no critic (ProhibitMagicNumbers)
     push @debits, Finance::Bank::Cahoot::DirectDebit->new($row);
   }
   while ($self->{_mech}->content =~ /origin=forward/) {
     $self->{_mech}->follow_link(url_regex => qr/origin=forward/);
     $self->_test_content_for_error;
-    my $te = HTML::TableExtract->new(headers => ['Payable to', 'Reference is', 'Options']);
+    my $te = HTML::TableExtract->new(headers => ['Payable to', 'Reference is']);
     $te->parse(decode_utf8 $self->{_mech}->content);
     my $table = _trim_table([$te->first_table_found->rows]);
     foreach my $row (@{$table}) {
-      # Direct debit lists contain GBP symbols (unlike statements)
-      $row->[2] =~ s/[^0-9\.]//g;       ## no critic (ProhibitMagicNumbers)
       push @debits, Finance::Bank::Cahoot::DirectDebit->new($row);
     }
   }
