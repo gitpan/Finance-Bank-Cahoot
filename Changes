@@ -1,3 +1,10 @@
+1.07    16 September 2010
+        Cahoot web application has changed name to AquariusSecurity and
+        a number of URLs are now also different.
+
+1.06    4 July 2010
+        Direct debits format on cahoot.com has changed again.
+
 1.05    17 September 2009
         Updated Finance::Bank::Cahoot::DirectDebit to cope with new Cahoot
         direct debit page format.

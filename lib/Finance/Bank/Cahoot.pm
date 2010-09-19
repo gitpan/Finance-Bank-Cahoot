@@ -10,7 +10,7 @@ use strict;
 use warnings 'all';
 use vars qw($VERSION @REQUIRED_SUBS);
 
-$VERSION = '1.06';
+$VERSION = '1.07';
 @REQUIRED_SUBS = qw(account place date maiden username password);
 
 use Carp qw(croak);
@@ -33,7 +33,7 @@ sub new
 	       _credentials => $opts{credentials},
 	       _connected   => 0,
 	     };
-  $self->{_mech}->agent_alias('Windows IE 6');
+  $self->{_mech}->agent_alias('Mac Safari');
 
   bless $self, $class;
   $self->_set_credentials(%opts);
@@ -108,7 +108,7 @@ sub login
 
   return if $self->{_connected};
 
-  $self->_get('https://securebank.cahoot.com/servlet/Aquarius/web/en/core_banking/log_in/frameset_top_log_in.html');
+  $self->_get('https://securebank.cahoot.com/AquariusSecurity/bks/web/en/core_banking/log_in/frameset_top_log_in.jsp');
   my %fields = (inputuserid => $self->{_credentials}->username());
   my $content = $self->{_mech}->content;
   foreach my $input ($self->{_mech}->find_all_inputs()) {
@@ -161,7 +161,7 @@ sub _test_content_for_error
   croak 'Login failed'
     if $self->{_mech}->content =~ m{We cannot recognise those details};
   croak 'General system error returned from Cahoot server'
-    if $self->{_mech}->content =~ m{/Aquarius/web/en/GeneralSystemError.html};
+    if $self->{_mech}->content =~ m{/AquariusSecurity/web/en/GeneralSystemError.html};
     return;
 }
 
@@ -227,8 +227,12 @@ sub set_account
   return if defined $self->{_current_account} and $self->{_current_account} eq $account;
   $self->login();
   $self->{_accounts} = $self->accounts if not defined $self->{_accounts};
-
-  $self->_get('/servlet/com.aquarius.accounts.servlet.PersonalHomepageSelectionServlet?productType=MTA&productId=00'.$account.'&origin=init');
+  my $account_index;
+  foreach my $account_details (@{$self->{_accounts}}) {
+    $account_index = $account_details->{account_index} if $account_details->{account} eq $account or $account_details->{name} eq $account;
+  }
+  croak 'set_account called with invalid account details' if not defined $account_index;
+  $self->_get('/servlet/com.aquariussecurity.accounts.servlet.PersonalHomepageSelectionServlet?productType=MTA&Index='.$account_index.'&origin=init');
   $self->_get_frames();
   $self->{_current_account} = $account;
   delete $self->{_statements} if defined $self->{_statements};
@@ -243,7 +247,7 @@ sub statement
   $self->set_account($account) if defined $account;
   croak 'No account currently selected' if not defined $self->{_current_account};
 
-  $self->_get('/servlet/com.aquarius.accounts.servlet.CurrentAccountStatementEntryServlet?print=yes');
+  $self->_get('/servlet/com.aquariussecurity.accounts.servlet.CurrentAccountStatementEntryServlet?print=yes');
   my $te = HTML::TableExtract->new(headers => [qw(Date Transaction Withdrawn Paid Balance)]);
   $te->parse($self->{_mech}->content);
   my @table = $te->first_table_found->rows;
@@ -265,7 +269,7 @@ sub statements
   $self->set_account($account) if defined $account;
   croak 'No account currently selected' if not defined $self->{_current_account};
 
-  $self->_get('/servlet/com.aquarius.accounts.servlet.CurrentAccountStatementEntryServlet');
+  $self->_get('/servlet/com.aquariussecurity.accounts.servlet.CurrentAccountStatementEntryServlet');
   $self->{_mech}->content =~ m/name="statementPeriods"(.*?)<\/select>/gsi;
   croak 'Statement extraction parsing failed' if not defined $1;
   my $select = $1;
@@ -297,7 +301,7 @@ sub set_statement
     }
     croak 'Invalid statement: '.$statement;
   }
-  $self->_get('/servlet/com.aquarius.accounts.servlet.CurrentAccountStatementEntryServlet');
+  $self->_get('/servlet/com.aquariussecurity.accounts.servlet.CurrentAccountStatementEntryServlet');
   $self->{_mech}->select('statementPeriods', $statement);
   $self->_submit_form();
   return $self;
@@ -311,9 +315,9 @@ sub debits
   $self->set_account($account) if defined $account;
   croak 'No account currently selected' if not defined $self->{_current_account};
 
-  $self->_get('https://securebank.cahoot.com/Aquarius/web/en/core_banking/current_account/direct_debits/frameset_view_direct_debits.html');
+  $self->_get('/AquariusSecurity/web/en/core_banking/current_account/direct_debits/frameset_view_direct_debits.html');
   $self->_get_frames();
-  $self->_get('/servlet/com.aquarius.orders.servlet.DirectDebitListEntryServlet');
+  $self->_get('/servlet/com.aquariussecurity.orders.servlet.DirectDebitListEntryServlet');
 
   my $te = HTML::TableExtract->new(headers => ['Payable to', 'Reference is']);
   $te->parse(decode_utf8 $self->{_mech}->content);
@@ -343,8 +347,8 @@ sub snapshot
   $self->set_account($account) if defined $account;
   croak 'No account currently selected' if not defined $self->{_current_account};
 
-  $self->_get('/servlet/com.aquarius.accounts.servlet.CurrentAccountStatusServlet?origin=print');
-  my $te = HTML::TableExtract->new(headers => [qw(Date Type Withdrawn Paid)]);
+  $self->_get('/servlet/com.aquariussecurity.accounts.servlet.CurrentAccountStatusServlet?origin=print');
+  my $te = HTML::TableExtract->new(headers => ['Date', 'Transaction Details', 'Withdrawn', 'Paid In']);
   $te->parse($self->{_mech}->content);
   my @table = $te->first_table_found->rows;
   return Finance::Bank::Cahoot::Statement->new(_trim_table \@table);
@@ -354,22 +358,18 @@ sub accounts
 {
   my ($self) = @_;
   $self->login();
-  $self->_get('/Aquarius/web/en/core_banking/personal_homepage/frameset_personal_homepage.html');
+  $self->_get('/AquariusSecurity/web/en/core_banking/personal_homepage/frameset_personal_homepage.html');
   $self->_get_frames;
   my $content = $self->{_mech}->content();
-  my @account_ids = ($content =~ m/PersonalHomepageSelectionServlet.*?productId=(\d+)/gsi);
-  my @account_names = ($content =~ m/<b>(.*?):.*?PersonalHomepageSelectionServlet.*?<\/td>/gsi);
-  my @available = ($content =~ m/available\s+balance:.*?([\-0-9\.]+)/gsi);
-  my @balance = ($content =~ m/current\s+balance:.*?([\-0-9\.]+)/gsi);
+  my @account_details = ($content =~ m/(PersonalHomepageSelectionServlet.*?"go\s+to\s+.*?")/gsi);
   my @accounts;
-  my %seen;
-  for (my $idx = 0; $idx <= $#account_ids; $idx++) {    ## no critic (ProhibitCStyleForLoops)
-    next if defined $seen{$account_ids[$idx]};
-    $seen{$account_ids[$idx]}++;
-    push @accounts, { name => _trim($account_names[$idx]),
-		      account => substr($account_ids[$idx], -8),   ## no critic (ProhibitMagicNumbers)
-		      balance => shift @balance,
-		      available => shift @available };
+  foreach my $account (@account_details) {
+    $account =~ m/(available\s+balance|payment\s+this\s+month):.*?([\-0-9\.]+).*(current\s+balance|payment\s+this\s+month):.*?([\-0-9\.]+).*?productType=MTA&Index=(\d+).*?="go\s+to\s+(.*?)\s+(\d+)"/gsi;
+    push @accounts, { name => _trim($6),
+                      account => $7,
+                      account_index => $5,
+                      balance => $4,
+                      available => $2 };
   }
   $self->{_accounts} = \@accounts;
   return \@accounts;

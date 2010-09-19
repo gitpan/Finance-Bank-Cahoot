@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 use lib 't/lib';
-use Test::More tests => 15;
+use Test::More tests => 17;
 use Test::Exception;
 use Test::Deep;
 
@@ -30,11 +30,21 @@ use_ok('Finance::Bank::Cahoot::CredentialsProvider::Constant');
   my $accounts = $c->accounts();
   is_deeply($accounts,
 	    [ { name => 'current account', account => '12345678',
+                account_index => 0,
 		balance => '847.83', available => '1847.83' },
 	      { name => 'flexible loan', account => '87654321',
+                account_index => 1,
 		balance => '0.00', available => '1000.00' },
 	    ],
 	    'Got expected account summary (list)' );
+
+  dies_ok {
+    $c->set_account();
+  } 'set_account called with no account number';
+
+  dies_ok {
+    $c->set_account('bogus');
+  } 'set_account called with invalid account details';
 
   ok($c->set_account($accounts->[0]->{account}),
      'set account for account 0');

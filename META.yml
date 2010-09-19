@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Finance-Bank-Cahoot
-version:            1.06
+version:            1.07
 abstract:           ~
 author:
     - Jon Connell <cpan@figsandfudge.com>

@@ -59,9 +59,9 @@ use_ok('Finance::Bank::Cahoot::CredentialsProvider::Constant');
   my $accounts = $c->accounts();
   is_deeply($accounts,
 	    [ { name => 'current account', account => '12345678',
-		balance => '847.83', available => '1847.83' },
+		account_index => 0, balance => '847.83', available => '1847.83' },
 	    { name => 'flexible loan', account => '87654321',
-	      balance => '0.00', available => '1000.00' },
+	      account_index => 1, balance => '0.00', available => '1000.00' },
 	    ],
 	    'got expected account summary (list)' );
 
